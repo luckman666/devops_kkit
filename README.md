@@ -14,3 +14,4 @@ Ssh二次开发，salstack二次开发，MQ,mysql,websocket,redis等等。
 初始账号123@123.com 密码123
 正在写第三版kkit
 
+![index](https://github.com/luckman666/devops_kkit/blob/master/image/index.png) 
