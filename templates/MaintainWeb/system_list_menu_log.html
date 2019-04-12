@@ -1,0 +1,88 @@
+{#{% load custom_tag %}#}
+
+<div class="container-fluid">
+<div class="row.no-gutter">
+
+{#<div class="col-sm-7 col-lg-4 host_list_div text-center" >#}
+{#  随着滚动条移动开始移动  #}
+
+ <div  id="leftmenu" class="new-col-md-4 col-md-1 panel  host_list_div text-center" >
+
+{#     主机分组情况图    #}
+         <div id="PacketGroupDisplayLK" style='display:block'>
+        <span id="container"></span>
+         </div>
+{#         任务结果图 #}
+         <div id="TaskResultCount" style='display:none '>
+         <span id="Taskcharts"></span>
+         </div>
+
+ <div class="row" id="ResultButtonDisplay" style="display: none"></div>
+
+<p></p>
+<div class="row" id="ConsoleButton" style="display: block" >
+    <div class="col-md-offset-1">
+    <div class="searchbox">
+            <div class="input-group custom-search-form ">
+                <input type="text" id="search-host" class="form-control input-lg " placeholder="请输入用户名或邮箱查找..">
+                <span class="input-group-btn">
+                    <button class="text-muted" type="button"><i class="fa fa-search"></i></button>
+                </span>
+            </div>
+        </div>
+        </div>
+        <p></p>
+
+<div class="row" >
+
+    <div class="col-md-6 " >
+      <input type="text" class="form-control input-lg " id="LogPath" placeholder="/vat/log/test.log..">
+    </div>
+{#<div >#}
+<button type="button" id="task-check-btn" class="ellipse newbutton1 ellipse-red col-md-4 col-md-offset-1">确认查看</button>
+{#</div>#}
+</div>
+<p></p>
+
+    <div class="row" >
+        <button  id="unfold-all" type="button" class="ellipse newbutton1 ellipse-blue col-md-offset-1 col-md-4">展开</button>
+        <button id="task-check-btn" type="button" class="ellipse newbutton1 ellipse-blue  col-md-4 col-md-offset-2">查看系统日志</button>
+    </div>
+    <p></p>
+
+    <div class="row" >
+        <button  id="unfold-all" type="button" class="ellipse newbutton1 ellipse-blue col-md-offset-1 col-md-4">保存日志目录</button>
+        <button id="task-check-btn" type="button" class="ellipse newbutton1 ellipse-blue  col-md-4 col-md-offset-2">查看硬件日志</button>
+    </div>
+            <p></p>
+    <div class="row" >
+        <button  id="unfold-all" type="button" class="ellipse newbutton1 ellipse-blue col-md-offset-1 col-md-4">top</button>
+        <button id="task-check-btn" type="button" class="ellipse newbutton1 ellipse-blue  col-md-4 col-md-offset-2">显示历史路径</button>
+    </div>
+</div>
+</div>
+
+{#  显示情况  #}
+
+<div class="new-col-xs-7 col-md-1 new-col-md-offset-1">
+<span id="alert-panel" ></span>
+<div class="pannel-body " id="TaskId" style='display:none'></div>
+<div class="pannel-body " id="DisplayTaskResult" style='display:none'></div>
+<div class="pannel-body row.no-gutter" id="DisplayGroupHosts" style='display:block'>
+
+
+{#  服务器概览右侧菜单end  #}
+ <!--=========================================================================================================================================================-->
+{#{% if DiffPath == 'cmdfile' %}#}
+{# cmd,file多任务右侧菜单    #}
+{% include 'MaintainWeb/host_system_log_right_menu_component.html' %}
+{#{% endif %}#}
+
+
+
+</div>
+</div>
+
+</div>
+</div>
+

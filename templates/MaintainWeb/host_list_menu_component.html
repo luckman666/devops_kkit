@@ -1,0 +1,128 @@
+{#{% load custom_tag %}#}
+
+<div class="container-fluid">
+<div class="row.no-gutter">
+
+{#<div class="col-sm-7 col-lg-4 host_list_div text-center" >#}
+{#  随着滚动条移动开始移动  #}
+
+ <div  id="leftmenu" class="new-col-md-4 col-md-1 panel  host_list_div text-center" >
+
+{#     主机分组情况图    #}
+         <div id="PacketGroupDisplayLK" style='display:block'>
+        <span id="container"></span>
+         </div>
+{#         任务结果图 #}
+         <div id="TaskResultCount" style='display:none '>
+         <span id="Taskcharts"></span>
+         </div>
+
+ <div class="row" id="ResultButtonDisplay" style="display: none"></div>
+
+<p></p>
+<div class="row" id="ConsoleButton" style="display: block" >
+    <div class="col-md-offset-1">
+    <div class="searchbox">
+            <div class="input-group custom-search-form ">
+                <input type="text" id="search-host" class="form-control input-lg " placeholder="请输入用户名或邮箱查找..">
+                <span class="input-group-btn">
+                    <button class="text-muted" type="button"><i class="fa fa-search"></i></button>
+                </span>
+            </div>
+        </div>
+        </div>
+
+<p></p>
+
+    <div class="row" >
+        <button  id="unfold-all" type="button" class="ellipse newbutton1 ellipse-blue col-md-offset-1 col-md-4">展开</button>
+{#    登录授权    #}
+        {% if DiffPath == 'hosts' %}
+        <button id="task-check-btn" type="button" class="ellipse newbutton1 ellipse-red  col-md-4 col-md-offset-2">登录授权控制台</button>
+        {% endif %}
+        {% if DiffPath == 'cmdfile' %}
+         <button id="task-check-btn" type="button" class="ellipse newbutton1 ellipse-red  col-md-4 col-md-offset-2">弹出命令控制台</button>
+        {% endif %}
+        {% if DiffPath == 'saltconfig' %}
+        <button id="sync-host-btn" type="button" class="ellipse newbutton1 ellipse-red  col-md-4 col-md-offset-2">同步主机配置</button>
+        {% endif %}
+        {% if DiffPath == 'saltscript' %}
+         <button id="salt-execute-script-btn" type="button" class="ellipse newbutton1 ellipse-red  col-md-4 col-md-offset-2">弹出脚本控制台</button>
+        {% endif %}
+    </div>
+{#  服务器概览页面显示按钮   #}
+    {% if DiffPath == 'hosts' %}
+    <p></p>
+    <div class="row">
+        <button type="button" id="Save" class="ellipse newbutton1 ellipse-blue col-md-4 col-md-offset-1">保存</button>
+        <button type="button" id="idEditMpode" class="ellipse newbutton1 ellipse-blue col-md-4 col-md-offset-2">进入编辑模式</button>
+    </div>
+    {% endif %}
+
+{#  salt配置界面   #}
+    {% if DiffPath == 'saltconfig' %}
+    <p></p>
+    <div class="row">
+        <button type="button" id="Save" class="ellipse newbutton1 ellipse-blue col-md-4 col-md-offset-1">保存</button>
+        <button type="button" id="deployagent" class="ellipse newbutton1 ellipse-blue col-md-4 col-md-offset-2">部署agent</button>
+    </div>
+    <p></p>
+    <div class="row">
+        <button type="button" id="CheckHostInfoButton" class="ellipse newbutton1 ellipse-blue col-md-4 col-md-offset-1">查看主机配置</button>
+        <button type="button" id="AllActiontKey" class="ellipse newbutton1 ellipse-blue col-md-4 col-md-offset-2">全部接受key</button>
+    </div>
+    {% endif %}
+<p></p>
+    <div class="row">
+            <button id="check-all" type="button" class="ellipse newbutton1 col-md-4 ellipse-blue col-md-offset-1">全选</button>
+            <button id="CheckResult" type="button" class="ellipse newbutton1 col-md-4 ellipse-blue  col-md-offset-2">查看任务详情</button>
+    </div>
+{#    end #}
+<p></p>
+    <div class="row">
+        <button id="show-all-checked" type="button" class="ellipse newbutton1 col-md-4 ellipse-blue col-md-offset-1">已选</button>
+       {% if DiffPath == 'saltscript' %}
+        <button id="StopSaltJob" type="button" class="ellipse newbutton1 col-md-4 ellipse-blue  col-md-offset-2">停止批量任务</button>
+       {% else %}
+       <button id="StopBulkTake" type="button" class="ellipse newbutton1 col-md-4 ellipse-blue  col-md-offset-2">停止批量任务</button>
+       {% endif %}
+    </div>
+<p></p>
+</div>
+</div>
+
+{#  显示情况  #}
+
+<div class="new-col-xs-7 col-md-1 new-col-md-offset-1">
+<span id="alert-panel" ></span>
+<div class="pannel-body " id="TaskId" style='display:none'></div>
+<div class="pannel-body " id="DisplayTaskResult" style='display:none'></div>
+<div class="pannel-body row.no-gutter" id="DisplayGroupHosts" style='display:block'>
+
+{% if DiffPath == 'hosts' %}
+{#  登录授权右侧菜单  #}
+{% include 'MaintainWeb/host_accredit_right_menu_component.html' %}
+{% endif %}
+{#  服务器概览右侧菜单end  #}
+ <!--=========================================================================================================================================================-->
+{% if DiffPath == 'cmdfile' %}
+{# cmd,file多任务右侧菜单    #}
+{% include 'MaintainWeb/host_cmd_file_right_menu_component.html' %}
+{% endif %}
+
+{% if DiffPath == 'saltconfig' %}
+{# saltconfig右侧菜单    #}
+{% include 'MaintainWeb/host_saltconfig_right_menu_component.html' %}
+{% endif %}
+
+{% if DiffPath == 'saltscript' %}
+{# cmd,file多任务右侧菜单    #}
+{% include 'MaintainWeb/host_cmd_file_right_menu_component.html' %}
+{% endif %}
+
+</div>
+</div>
+
+</div>
+</div>
+

@@ -1,0 +1,36 @@
+{% extends 'kkitadmin/kkitadmin_index.html' %}
+{% load kkitadmin_tags %}
+
+{% block url_path %}
+    <li><a href="/kkitadmin/">Home</a></li>
+    <li><a href="/kkitadmin/{{ app_name }}/">{{ app_name }}</a></li>
+    <li class="active">{% get_model_verbose_name admin_class %}</li>
+{% endblock %}
+
+{% block right-content %}
+
+<h2 class="page-header">{% get_model_name admin_class %}</h2>
+<h4 class="page-header alert-danger">注意:以下与{{ objs }}相关联的数据都将被删除!</h4>
+
+<div>
+
+
+
+{% for obj in objs  %}
+    {% display_all_related_objs obj  as all_related_obj_eles %}
+    {{ all_related_obj_eles|safe }}
+{% endfor %}
+
+
+
+<form method="post">{% csrf_token %}
+{% if querysets_ids %}
+    <input type="hidden" name="selected_ids" value="{{ querysets_ids }}">
+{% endif %}
+<input type="submit" class="btn btn-danger" value="确认删除">
+<a href="#" class="btn btn-info" >返回</a>
+</form>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,997 @@
+
+<script type="text/javascript">
+    CurrentPath = GetUrlRelativePath();
+{#    console.log(CurrentPath)#}
+{#var ResultRefresh#}
+$(document).ready(function(){
+
+$(".task_res_div,.host_list_div,.recent_tasks_div").draggable({handle:'div.pannel-heading'});
+
+//show tasks details
+$("#finished_tasks").click(function(){
+    $(".task_result b .task_res_status").filter(".badge-success").parent().fadeIn();
+    $(".task_result b .task_res_status").not(".badge-success").parent().fadeOut();
+    $(".task_result b .task_res_status").not(".badge-success").parent().next().fadeOut();
+    ChangeBadgeSize("#finished_tasks");
+});
+$("#failed_tasks").click(function(){
+    $(".task_result b .task_res_status").filter(".badge-danger").parent().fadeIn();
+    $(".task_result b .task_res_status").not(".badge-danger").parent().fadeOut();
+    $(".task_result b .task_res_status").not(".badge-danger").parent().next().fadeOut();
+    ChangeBadgeSize("#failed_tasks");
+});
+$("#unkown_tasks").click(function(){
+    $(".task_result b .task_res_status").filter(".badge-warning").parent().fadeIn();
+    $(".task_result b .task_res_status").not(".badge-warning").parent().fadeOut();
+    $(".task_result b .task_res_status").not(".badge-warning").parent().next().fadeOut();
+    ChangeBadgeSize("#unkown_tasks");
+});
+$("#total_tasks").click(function(){
+    $(".task_result b ").next().fadeOut();
+    $(".task_result b ").fadeIn();
+    ChangeBadgeSize("#total_tasks");
+});
+//end show task details
+{# 展开收起按钮  #}
+$("#unfold-all").click(function(){
+var btn_val = $(this).html();
+   if (btn_val == '展开') {
+
+        $("tr[id='TableRow TheadTr']").fadeIn();
+       $("tr[id='TableRow']").fadeIn();
+       $(this).html("收起");
+   }else {
+
+   $("tr[id='TableRow TheadTr']").fadeOut();
+   $("tr[id='TableRow']").fadeOut();
+   $(this).html("展开");
+        }
+   }) ;
+
+$("#show-all-checked").click(function(){
+  var btn_val = $(this).html();
+    if (btn_val==='已选'){
+        ShowAllChecked();
+        $(this).html('未选')
+    }else {
+        ShowAllUnchecked()
+        $(this).html('已选')
+    }
+      });
+
+{# 全选取消全选绑定js  #}
+$("#check-all").click(function(){
+  var btn_val = $(this).html();
+    if (btn_val==='全选'){
+        CheckAll()
+        $(this).html('取消全选')
+    } else {
+        UncheckAll();
+        $(this).html('全选')
+    }
+});
+{#   全选和取消全选  #}
+$("span[data_label='group']").click(function(){
+   var btn_val = $(this).html();
+   if (btn_val == '全选'){
+       $(this).parent().parent().next().children("tbody").find("input[type='checkbox']").prop("checked",true);
+{#    input:checkbox:checked 相当于  $('input[type=checkbox]:checked')         #}
+        $(this).parent().parent().next().children("tbody").find("tr[class='CheckAll']").addClass("active");
+       $(this).html("取消");
+
+   }else{
+{#               var hosts = $(this).parent().parent().nextAll().removeClass("active");#}
+       $(this).parent().parent().next().children("tbody").find('input:checkbox:checked').prop("checked",false);
+       $(this).parent().parent().next().children("tbody").find("tr[class='CheckAll active']").removeClass("active");
+{#               $('#undistributed').children().find("[type='checkbox']").prop("checked",false);#}
+       $(this).html("全选");
+   }
+
+    TotalChosenHosts()
+});//end span[data_label='group
+
+{# 模态框授权查找用户  #}
+$("#SearchUser").change(function(){
+
+ var search_text =  $(this).val();
+ $("p[id='UserInfo']").fadeOut();
+ var host_nodes = $("p[class='User']:contains("+  $.trim(search_text) + ")");
+  host_nodes.fadeIn();
+ if (host_nodes.length ==0){
+     $(this).val(search_text +":找不到用户!");
+ }
+ //console.log(host_nodes);
+});
+//搜索主机
+$("#search-host").change(function(){
+//console.log($(this).val());
+var search_text =  $(this).val();
+$("tr[id='TableRow']").fadeOut();
+{#     去掉两边的空格    #}
+var host_nodes = $("tr[class='CheckAll']:contains("+  $.trim(search_text) + ")");
+host_nodes.fadeIn();
+if (host_nodes.length ==0){
+ $(this).val(search_text +":找不到主机!");
+}
+
+});
+
+$("button[data-toggle='collapse']").click(function(){
+$(this).parent().parent().next().fadeToggle(300)
+});//end button toggle
+$('.selectpicker').selectpicker({
+  style: 'btn-info',
+  size: 4
+});
+
+    {#        服务器选择checkbox单独勾选检查js     #}
+$("input[type='checkbox']").click(function(){
+{#   检查是否勾选     #}
+    if ($(this).is(':checked')){
+{#            加激活属性        #}
+        $(this).parent().parent().addClass('active');
+       var total_hosts = $("tr[class='CheckAll active']").length;
+        $("#total_chosen_hosts").html(total_hosts);
+        if(CurrentPath==='/hosts/'){
+            $CurrentTr=$(this).parent().parent();
+{#            console.log('$CurrentTr',$CurrentTr);#}
+             bindCheckbox($CurrentTr)
+        }
+        if(CurrentPath.indexOf('/salt/config/')===0){
+            $CurrentTr=$(this).parent().parent();
+
+             bindCheckbox($CurrentTr)
+        }
+        console.log($(this))
+    } else {
+    $(this).prop("checked",false);
+    $(this).parent().parent().removeClass('active');
+
+    if(CurrentPath==='/hosts/'){
+        $CurrentTr=$(this).parent().parent();
+         bindCheckbox($CurrentTr)
+    }
+    if(CurrentPath.indexOf('/salt/config/')===0){
+        $CurrentTr=$(this).parent().parent();
+         bindCheckbox($CurrentTr)
+    }
+    var total_hosts = $("tr[class='CheckAll active']").length;
+    $("#total_chosen_hosts").html(total_hosts);
+}
+});
+{#  查看任务结果函数   #}
+$('#CheckResult').click(function () {
+$.getJSON('/api/request_tasks_id/',function(TaskIdList) {
+    var DisplayTask = [];
+    if (TaskIdList){
+{#                console.log(TaskIdList)#}
+        $.each(TaskIdList,function (index,task) {
+                DisplayTask.push("<br> <input type=\"radio\" name=\"task_id\" id=" + task.id  + " >   任务id： "+ task.id +"   任务类型： "
+                    + task.task_type +"   任务简介： " + task.cmd + " </br> ")
+            });
+            $("#ReturnId").html(DisplayTask);
+            $("#CheckResultModal").modal('show');
+{#            $("#CheckResult").html('返回管理界面');#}
+    } else {
+        alert("用户没有执行过任何任务");
+        return false
+    }
+
+})
+})
+
+{#  多条命令弹出模态对话框的脚本  #}
+$("#task-check-btn").click(function(){
+{#   获取当前路径     #}
+ var btn_val = $(this).html();
+{#     文件传输js     #}
+if (CurrentPath==='/hosts/multi/filetrans') {
+    if (btn_val == '弹出命令控制台') {
+       var task_expire_time = $("select[name='task_expire_time']").val();
+       var remote_file_path = $("#remote_file_path").val();
+        postDic = {
+            //选择了几个服务器
+            'selected_hosts': []
+        };
+        var err_msg = [];
+        //run form submistion check before submit
+        var selected_hosts = $("tr[id='TableRow']").filter(".active");
+
+        if (selected_hosts.length == 0) {
+            err_msg.push("未选中任何主机执行任务！");
+            alert("未选中任何主机执行任务！");
+            return false
+        }
+        {#     遍历selected_hosts列表中的内容   #}
+        $(selected_hosts).children().children('input').each(function () {
+            {#      添加主机id 类似host_1  #}
+            postDic["selected_hosts"].push($(this).attr("id"));
+        });
+        {#    序列化    #}
+        postDic["selected_hosts"] = JSON.stringify(unique(postDic["selected_hosts"]));
+        if (err_msg.length == 0) { // passed form submition check
+            {#    显示模态对话框        #}
+            $('#TaskSendFileConfirmModal').modal('show');
+{#            $(this).html("停止批量任务");#}
+            {#     拿到用户输入的命令，并且去除两边的空格   #}
+        } else {
+            alert(err_msg);
+{#            $(this).html("弹出命令控制台");#}
+            return false
+        }
+    } else {
+{#            var tid = $("#TaskId").attr('CountTaskTid');#}
+{#            TerminateTask(tid);#}
+{#            $(this).html("弹出命令控制台"); #}
+    }
+    }
+{#   登录授权js     #}
+else if (CurrentPath==='/hosts/'){
+        bindAccReditLogin(btn_val)
+}
+{#  批量命令js  #}
+else if (CurrentPath==='/hosts/multi/') {
+
+            postDic = {
+                //选择了几个服务器
+                'selected_hosts': []
+            };
+            var err_msg = [];
+            //run form submistion check before submit
+            var selected_hosts = $("tr[id='TableRow']").filter(".active");
+            if (selected_hosts.length == 0) {
+                err_msg.push("未选中任何主机执行任务！");
+                {#            show_alert(err_msg);#}
+                alert("未选中任何主机执行任务！");
+                return false
+            }
+            {#     遍历selected_hosts列表中的内容   #}
+            $(selected_hosts).children().children().each(function () {
+                {#      添加主机id 类似host_1  #}
+                {#            console.log($(this))#}
+                postDic["selected_hosts"].push($(this).attr("id"));
+            });
+            {#    序列化    #}
+            postDic["selected_hosts"] = JSON.stringify(unique(postDic["selected_hosts"]));
+            if (err_msg.length == 0) { // passed form submition check
+                {#    显示模态对话框        #}
+                $('#taskRunConfirmModal').modal('show');
+{#                $(this).html("停止批量任务");#}
+                {#     拿到用户输入的命令，并且去除两边的空格   #}
+            } else {
+                alert(err_msg);
+{#                $(this).html("弹出命令控制台");#}
+                return false
+            }
+    }
+
+else if (CurrentPath==='/systemlog/'){
+    CheckLog()
+}
+else {
+
+}
+});
+
+});
+
+
+
+
+
+
+
+//显示所有已选的
+function ShowAllChecked(){
+
+if ($("tr[id='TableRow']").filter(".CheckAll .active")){
+    {#        全都隐藏      #}
+  $("tr[id='TableRow']").fadeOut();
+{#          显示表头      #}
+  $("tr[id='TableRow TheadTr']").fadeIn();
+{#         显示表内容     #}
+    $("tr[class='CheckAll active']").fadeIn();
+
+}
+else {
+}
+
+}
+//显示所有未选的
+function ShowAllUnchecked(){
+$("tr[id='TableRow']").fadeOut();
+$("tr[id='TableRow TheadTr']").fadeIn();
+$("tr[id='TableRow']:not(.active)").fadeIn();
+
+}
+
+//全选
+function CheckAll(){
+{# tr 标签  class='CheckAll'的标签，添加 class=active  #}
+
+$("tr[class='CheckAll']").addClass("active");
+{#    tr标签，class为 CheckAll active的选项 选中     #}
+$("tr[class='CheckAll active']").children().find('input').prop("checked",true);
+{#       计算值    #}
+var total_hosts = $("tr[class='CheckAll active']").length;
+{#       把数传给变量    #}
+$("#total_chosen_hosts").html(total_hosts);
+
+$(this).attr('disabled','true');
+if(CurrentPath==='/hosts/'){
+    $CurrentTr=$("tr[class='CheckAll active']");
+     bindCheckbox($CurrentTr)
+}
+};
+
+//取消全选
+function UncheckAll(){
+$("tr[class='CheckAll active']").children().find('input').prop("checked",false);
+$("tr[class='CheckAll active']").removeClass("active");
+var total_hosts = $("tr[class='CheckAll']").length;
+
+$("#total_chosen_hosts").html(0);
+$("#check-all").removeAttr("disabled");
+if(CurrentPath==='/hosts/'){
+    $CurrentTr=$("tr[class='CheckAll']");
+     bindCheckbox($CurrentTr)
+}
+
+};
+
+{#  查看任务详情执行确认后的js  #}
+function CheckResultTask() {
+    var TaskId = $("input[name='task_id']:checked").attr('id');
+
+{#    console.log('TaskId',TaskId);#}
+    if (TaskId){
+        $('#CheckResultModal').modal('hide');
+        {#        右侧主机列表消失    #}
+            document.getElementById("DisplayGroupHosts").style.display="none";
+
+{#       右侧显示结果div开启     #}
+            document.getElementById("DisplayTaskResult").style.display = "block";
+        GetTaskResult(TaskId,"refresh")
+
+    } else {
+        alert("选择查看的任务出错")
+    }
+
+}
+
+
+{# 零星小问题处理js  #}
+function ClearBug() {
+if (CurrentPath==='/hosts/'){
+    $("#task-check-btn").html("登录授权控制台");
+} else {
+    $("#task-check-btn").html("弹出命令控制台");
+}
+}
+
+{#  获取当前相对路径  #}
+function GetUrlRelativePath()
+　　{
+　　　　var url = document.location.toString();
+　　　　var arrUrl = url.split("//");
+　　　　var start = arrUrl[1].indexOf("/");
+　　　　var relUrl = arrUrl[1].substring(start);//stop省略，截取从start开始到结尾的所有字符
+　　　　if(relUrl.indexOf("?") != -1){
+　　　　　　relUrl = relUrl.split("?")[0];
+　　　　}
+　　　　return relUrl;
+　　}
+
+{# 告警显示  #}
+function show_alert_info(msg_list){
+var err_msg = "";
+for (msg_index in msg_list){
+    err_msg += msg_index + ". " + msg_list[msg_index] + "<br/>";
+}
+
+var context =( '<h4 class="alert-title">信息反馈</h4>' +
+    '<p class="alert-message">' +  err_msg +  '</p>' );
+
+$("#TaskStopModal").modal('show');
+$("#TaskStopContextDisplay").html(context);
+
+}
+{# 任务完成后的提示信息  #}
+function show_msg_success(TaskId){
+
+var info_msg = "恭喜您！ 第"+ TaskId +"号任务已经完成 确认右侧结果后点击确定返回";
+$.niftyNoty({
+    layout:'center',
+    type: 'success',
+    container : '#ResultButtonDisplay',
+    html : '<h4 class="alert-title">消息提醒</h4>' +
+    '<p class="alert-message">'+  info_msg +  '</p>' +
+    '<div >' +
+        '<button type="button" class="btn btn-warning" onClick="FlushWindos()" data-dismiss="noty">确定</button>' +
+    '</div>' ,
+    closeBtn : false,
+});
+}
+
+function show_msg_warning(TaskId){
+
+var info_msg = "对不起，！ 您的"+ TaskId +"号任务暂时没有完成请稍后再来查看，点击返回首页";
+$.niftyNoty({
+    layout:'center',
+    type: 'warning',
+    timer : 5000,
+    container : '#ResultButtonDisplay',
+    html : '<h4 class="alert-title">消息提醒</h4>' +
+    '<p class="alert-message">'+  info_msg +  '</p>' +
+    '<div >' +
+        '<button type="button" class="btn btn-danger" onClick="FlushWindos()" data-dismiss="noty">确定</button>' +
+    '</div>' ,
+    closeBtn : false
+});
+}
+
+//------------------
+
+function task_detail_toggle(action_type,ele){
+if (action_type=='all'){
+    $(".task_result b").fadeIn(); //derprecated
+    $(".task_result b").next().fadeIn();
+}else{
+    $(".task_result b").filter(function() { return $(this).css("display") == "block" }).next().fadeToggle();
+}
+if ($(ele).html().search("down") >0){ // found it
+    $(ele).html('<i class="fa fa-chevron-circle-up"></i> 收缩/展开');
+
+}else{
+     $(ele).html('<i class="fa fa-chevron-circle-down"></i> 收缩/展开')
+
+}
+}
+
+function CheckAllHostInGroup(g_id){
+
+var group_ele = $("#group_"+g_id);
+var all_host_eles = group_ele.parent().nextAll();
+
+if (group_ele.parent().hasClass("active")){
+    all_host_eles.removeClass("active");
+}else{
+    all_host_eles.addClass("active");
+}
+TotalChosenHosts();
+
+}
+
+{#  上下伸缩的js  #}
+function ToggleGroup(g_id){
+    var group_ele = $("#group_toggle_"+g_id);
+    var all_host_eles = group_ele.parent().parent().parent().next().children() ;
+{#  淡出效果   #}
+    all_host_eles.find('tr').fadeToggle(300);
+
+}
+
+function HostCheckCounter(ele){
+    var notChecked = $(ele).parent().hasClass("active");// here is reversed... don't ask why
+    TotalChosenHosts();
+}
+
+function TotalChosenHosts(){
+    var total_chosen_hosts = $("tr[id='TableRow']").filter(".active").length;
+    $("#total_chosen_hosts").html(total_chosen_hosts);
+}
+{# 多任务post返回任务id后的处理函数  #}
+function callbackfuc(callback) {
+            if (callback != 'TaskCreatingError'){
+                document.getElementById("TaskId").style.display="block";
+                $("#TaskId").html("任务创建成功! 任务编号:" + callback);
+                $("#TaskId").attr("style","color:green;font:bold");
+                $("#TaskId").attr("CountTaskTid",callback);
+                $("#DisplayTaskResult").html("");
+                $("#file-download-to-local").attr("task_id",callback); // only works when task_type = file_get
+
+                GetTaskResult(callback,'refresh');
+            }else{
+                $("#modal_content").html("任务创建失败，请查看相关日志进行调试！");
+                $("#modal_content").attr("style","color:red;font:bold")
+            }
+}
+
+
+{# 多任务执行执行确认   #}
+function submit_task(ele,post_url){
+{#  文件传输  #}
+    if (CurrentPath==='/hosts/multi/filetrans') {
+       var task_expire_time = $('#TaskSendFileConfirmModal').find("#task_expire_time").val();
+       var remote_file_path = $("#remote_file_path").val();
+       var params = {
+           'selected_hosts':JSON.parse(postDic['selected_hosts']),
+           'expire_time':task_expire_time
+       };
+        var task_type = $('input:radio[name="optionsRadios"]:checked').val();
+        var condition = true;
+{#       改了一下，之前是 CurrentPath    #}
+   if (task_type==='file_send'){ //for file upload
+{#       文件名列表    #}
+           var file_list = [];
+           $(".file-upload-indicator[title='上传']").parent().parent().children().filter(".file-footer-caption").each(function(){
+               file_list.push($(this).html());
+           });
+           if (file_list.length ==0){
+               alert("未选择要上传的文件！");
+               condition = false
+           }
+           if (remote_file_path.trim().length === 0 ){
+               alert("未指定要分发到远程的文件路径！");
+               condition = false
+           }
+           params['remote_file_path'] = remote_file_path;
+           params['local_file_list'] = file_list;
+            $("#TaskSendFileConfirmModal").modal('hide')
+       }else{
+
+           if (remote_file_path.trim().length === 0 ){
+               alert("未指定要从远程下载的文件绝对路径名！");
+               condition = false
+           }
+           params['remote_file_path'] = remote_file_path;
+       }
+
+    if (condition){
+
+        postDic = {'task_type':task_type,'params':JSON.stringify(params)};
+          $.post(post_url, postDic,function(callback) {
+{#        结果回掉      #}
+{#              console.log(callback);#}
+            if (task_type==='file_get'){
+{#                console.log('task_type',task_type);#}
+                 FileDownToLocal(callback)
+            } else {
+                callbackfuc(callback)
+            }
+
+
+          })
+        }
+
+    }
+    else if (CurrentPath==='/hosts/'){
+{#       授权登录同意请求后处理函数     #}
+        bindAccReditLoginAction(ele,post_url)
+    }
+    else {
+        {#   获取输入的命令     #}
+        var CmdInfo = $('#taskRunConfirmModal').find("#cmd").val();
+        if(CmdInfo.length ==0 ){
+        alert("输入的命令不能为空!");
+        };
+        var DisCmdInfo = $.trim(CmdInfo);
+{#   #taskRunConfirmModal定位模态框位置 获取下拉菜单选项    #}
+        var task_expire_time = $('#taskRunConfirmModal').find("#task_expire_time").val();
+        postDic['expire_time']=task_expire_time;
+        postDic['cmd']=DisCmdInfo;
+        postDic['task_type']=   'run_cmd';
+    //隐藏确认按钮
+        $(ele).attr('disabled','true');
+        $.post(post_url, postDic,function(callback){
+                callbackfuc(callback)
+            });
+         }
+}
+
+//执行任务成功失败统计图
+function TaskResultChat(taskresult) {
+    var TaskResultcharts =  Highcharts.chart({
+    chart: {
+{#        renderTo定位显示位置，html中的id属性                #}
+        renderTo : 'Taskcharts',
+        plotBackgroundColor: null,
+        plotBorderWidth: null,
+        plotShadow: false,
+        type: 'pie',
+{#             图形宽和高           #}
+        width: "370",
+{#            height: "350",#}
+        height: "350",
+    },
+    {#  去掉hchart本身的广告图表  #}
+    credits: {
+        enabled: false,
+    },
+    //设置导出按钮不可用
+    exporting: {
+        enabled: false
+    },
+    title: {
+        text: '任务执行结果'
+    },
+    tooltip: {
+        pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+    },
+    plotOptions: {
+        pie: {
+            allowPointSelect: true,
+            cursor: 'pointer',
+            dataLabels: {
+
+{#                           是否显示name     #}
+                enabled: true,
+{#                    显示的格式以及显示的            #}
+                formatter: function() {
+                        //Highcharts.numberFormat(this.percentage,2)格式化数字，保留2位精度
+{#                                        return '<b>'+ this.point.name +'</b>: '+Highcharts.numberFormat(this.percentage,2) +' %';#}
+                        //显示个数根据y值0
+                        return '<b>'+ this.point.name +'</b>: '+Highcharts.numberFormat(this.y, 0, ',') +' 台';
+                    }
+            },
+            showInLegend: true
+        }
+    },
+    series: [{
+        name: '任务执行结果分布',
+        colorByPoint: true,
+    }
+        ]
+});
+    TaskResultcharts.series[0].setData(taskresult)
+{#        TaskResultcharts.title.setData({'text':"任务创建成功! 任务编号:"})#}
+    }
+
+{#    确认下载模态框消失    #}
+function FadeFileDownloadConfirm() {
+
+            $("#fileDownloadConfirm").modal("hide");
+             $('#TaskSendFileConfirmModal').modal('hide');
+{#                FlushWindos()#}
+    }
+
+{#  文件下载  #}
+function FileDownToLocal(task_id){
+            if (task_id === 'None') {
+                $("#fileDownloadConfirm .modal-body span").html("任务出错，下载未完成！请查看目录及文件名是否正确，无文件可下载！");
+            }
+            var download_url = $("#fileDownloadConfirm a").attr("href").split("/");
+            console.log('1==>' + download_url);
+            download_url.pop();
+            console.log('2==>' + download_url);
+            download_url.pop();
+            download_url = download_url.join('/');
+            console.log('3==>' + download_url);
+            download_url += "/" + task_id;
+            $("#fileDownloadConfirm a").attr("href",download_url);
+            $("#fileDownloadConfirm").modal("show");
+
+    };
+
+{#    完成或者未完成告警框提示函数    #}
+function MyNifty(task_id,logdata) {
+    {#       将再次弹起对话框的按钮禁用，直到剩余任务都完成了     #}
+        var type = logdata['summary'].task_type;
+         {#  任务执行情况取数据整理  #}
+        var finished_num = logdata['summary'].finished_num;
+        {#         失败的数量   #}
+        var failed_num = logdata['summary'].failed_num;
+        {#        正在运行的数量    #}
+        var unknown_num = logdata['summary'].unknown_num;
+        console.log('unknown_num',unknown_num);
+{#  判断所有任务执行完毕后的动作    #}
+        if ( unknown_num === 0){
+{#        显示结束提示信息    #}
+{#                 ReturnCurrentHome(task_id); #}
+           if ($("#DisplayGroupHosts").css('display')==='none'){
+               ReturnCurrentHome(task_id);
+{#               clearInterval(ResultRefresh);#}
+           }
+{#           console.log('aaaaaaa')#}
+                clearInterval(ResultRefresh);
+                return ;
+{#           console.log('bbbbbbbb')#}
+{#                FlushWindos()#}
+{#      显示结果并取消控制台按钮，显示返回主页按钮          #}
+
+        } else {
+        }
+}
+
+
+{#  获取任务结果  #}
+function PrintTaskResult(task_id){
+
+{#  get请求 带着任务id      #}
+    var TaskResultChartData =[];
+    $.getJSON('/api/multitask/res/', {'task_id':task_id},function(logdata) {
+        {#  任务执行情况取数据整理  #}
+        var finished_num = logdata['summary'].finished_num;
+{#         失败的数量   #}
+        var failed_num = logdata['summary'].failed_num;
+{#        正在运行的数量    #}
+        var unknown_num = logdata['summary'].unknown_num;
+        var type = logdata['summary'].task_type;
+{#            $("#task-check-btn").html("弹出命令控制台");#}
+
+        if (CurrentPath==='/hosts/multi/filetrans'){
+{#            console.log('type',type)#}
+               if(type === 'file_get') {
+                   FileDownToLocal(task_id);
+               }
+{#               $("#task-check-btn").html("弹出命令控制台");#}
+            }
+
+        MyNifty(task_id,logdata);
+{#  点击查看任务详细时警示框弹出  #}
+{#        if ($('#CheckResult').html()==='查看任务详情'){#}
+{#        }#}
+{#        else if ($('#CheckResult').html()==='返回管理界面') {#}
+{#            MyNifty(task_id,logdata)#}
+{#        }#}
+
+        TaskResultChartData.push(
+            {'name':'成功任务','y': finished_num,'sliced':'true', 'selected':'true'},
+            {'name':'失败任务','y':failed_num},
+            {'name':'剩余任务','y':unknown_num}
+            );
+    {#    传递任务图数据    #}
+        TaskResultChat(TaskResultChartData);
+    {# 隐藏之前的分组图，显示任务图   #}
+        document.getElementById("PacketGroupDisplayLK").style.display="none";
+        document.getElementById("TaskResultCount").style.display="block";
+{#         多命令提示框消失   #}
+        $('#taskRunConfirmModal').modal('hide');
+{#            $('#TaskSendFileConfirmModal').modal('hide');#}
+        {#  左侧显示栏消失 #}
+        $.each(logdata['detail'], function (key, log) {
+{#                console.log("logdata[\'detail\']",logdata['detail']);#}
+            var d = logdata['detail'][key];
+{#                var event_log= $.parseJSON(d.event_log)#}
+            if (d.result == 'success') {
+                var task_res = '<span class="task_res_status badge badge-success">' + d.result + '</span>';
+            } else if (d.result == 'failed') {
+                var task_res = '<span class="task_res_status badge badge-danger">' + d.result + '</span>';
+            } else {
+                var task_res = '<span class="task_res_status badge badge-warning">' + d.result + '</span>';
+            }
+            if ($("#DisplayTaskResult div[result='host_" + d.host_id + "'] pre").attr("style")=="display: none;"){
+                var res_detail = "<pre style='display: none;'>" + d.event_log + "</pre>";
+            }else{
+                var res_detail = "<pre style='display: block;'>" + d.event_log + "</pre>";
+            }
+            if ($("#DisplayTaskResult div[result='host_" + d.host_id + "'] h4").attr("style")=="display: none;"){
+                 var h4_ele = "<b style='display: none;'>";
+            }else{
+                 var h4_ele = "<b style='display: block;'>";
+            }
+
+            var host_info_ele = h4_ele + "<i onclick='ToggleSingleResult(this)'  class='fa fa-plus-square-o fa-plus-task-res'></i> " + d.hostname + "(" + d.ip_addr + ") user:" +
+                    d.username + " --- System: " + d.system + " --- Result: " + task_res +
+                    "</b>" + res_detail;
+
+            if ($("#DisplayTaskResult div[result='host_" + d.host_id + "']").length > 0) {
+                $("#DisplayTaskResult div[result='host_" + d.host_id + "']").html(host_info_ele);
+            } else {
+                var res_div = "<div result='host_" + d.host_id + "' class='host_res_head'>" + host_info_ele + "</div>";
+                $("#DisplayTaskResult").append(res_div);
+            }
+        });//end each
+        if (logdata['summary'].unknown_num == 0 ){
+            if (typeof ResultRefresh !='undefined' ){
+                clearInterval(ResultRefresh);
+                $("#submit_task_confirm").prop("disabled",false);
+            }
+            $("button[onclick='submit_task(this)']").attr("disabled",false);
+        }
+    });//end getJSON
+}
+
+{# 刷新页面的js  #}
+function FlushWindos() {
+    window.location.reload();
+}
+
+
+
+
+
+
+
+
+
+{# 获取用户未完成的任务号  #}
+{#function Unknown() {#}
+    $("#StopBulkTake").click(function () {
+    $.getJSON('/api/request_run_tasks_id/',function(TaskIdList) {
+    var DisplayTask = [];
+    if (TaskIdList !=''){
+        $.each(TaskIdList,function (index,task) {
+                DisplayTask.push("<br> <input type=\"radio\" name=\"task_id\" id=" + task.id  + " >   任务id： "+ task.id +"   任务类型： "
+                    + task.task_type +"   任务简介： " + task.cmd + " </br> ")
+            });
+            $("#RunTask").html(DisplayTask);
+            $("#UnknownTaskModal").modal('show');
+{#            $("#CheckResult").html('返回管理界面');#}
+    }
+    else {
+        alert("当前没有可供停止的任务");
+    }
+    })
+        });
+
+
+
+{# 批量处理  停止    #}
+function TerminateTask(){
+{#    var current_task_id = taskid;#}
+
+    var TaskId = $("input[name='task_id']:checked").attr('id');
+
+    if (TaskId != ''){
+        $.post("{% url 'multitask_action' %}", {'action': 'terminate_task', 'task_id':TaskId},function(callback){
+{#  如果 has terminated字符出现在返回结果的最后一位  #}
+            if (callback.indexOf("has terminated") > -1){ //task got terminated..
+{#         清除定时发送请求效果           #}
+                clearInterval(ResultRefresh);
+{#          停止选项框消失      #}
+                $("#UnknownTaskModal").modal('hide');
+{#  显示错误  #}
+                show_alert_info([callback]);
+
+                 $("#submit_task_confirm").prop("disabled",false);
+            }else{
+                show_alert_warning([callback]);
+            }
+        });//end post
+    }else{
+        show_alert(['未发现该运行任务，可能已经运行完毕，停止失败！！']);
+    }
+}
+
+
+{#  多命令操作，实现多次请求返回结果的js  #}
+function GetTaskResult(task_id,run_type){
+    if (run_type=='refresh'){
+        PrintTaskResult(task_id);
+
+{#     setInterval设置自动运行，每3秒执行一次 由clearInterval对其效果进行清除     #}
+        ResultRefresh = setInterval(function(){
+            PrintTaskResult(task_id);
+        },3000);
+    }else{
+        var one_time_run = null ;
+    }
+}
+
+function ToggleSingleResult(ele){
+    $(ele).parent().next().fadeToggle();
+}
+
+{# 任务结果字体变化大小js  #}
+function ChangeBadgeSize(ele){
+    $(".task_summary_panel span").css("font-size","15px");
+    $(ele).css("font-size","20px");
+
+}
+
+
+{# 任务完成按钮消失，并出现返回信息及按钮  #}
+function ReturnCurrentHome(TaskId) {
+    document.getElementById("ResultButtonDisplay").style.display = " block";
+    document.getElementById("ConsoleButton").style.display = "none";
+    show_msg_success(TaskId);
+}
+{# 任务未完成按钮消失，并出现返回信息及按钮  #}
+function ReturnCurrentHomeWarning(TaskId) {
+
+    document.getElementById("ResultButtonDisplay").style.display = " block";
+    document.getElementById("ConsoleButton").style.display = "none";
+        show_msg_warning(TaskId)
+}
+
+
+
+{#  批量操作计算机组显示饼状图  #}
+var myWidth = $('#ConsoleButton').css('width').slice(0,-2);
+                // Build the chart
+             var charts =  Highcharts.chart(  {
+                    chart: {
+{#        renderTo定位显示位置，html中的id属性                #}
+                        renderTo : 'container',
+                        plotBackgroundColor: null,
+                        plotBorderWidth: null,
+                        plotShadow: false,
+                        type: 'pie',
+{#                        options3d: {#}
+{#						enabled: true,#}
+{#						alpha: 45,#}
+{#						beta: 0#}
+{#				},#}
+{#             图形宽和高           #}
+                        width: "370",
+                        {#            height: "350",#}
+                        height: "350"
+                    },
+                    {#  去掉hchart本身的广告图表  #}
+                    credits: {
+                        enabled: false
+                    },
+                    //设置导出按钮不可用
+                    exporting: {
+                        enabled: false
+                    },
+                    title: {
+                        text: '服务器分组情况'
+                    },
+                    tooltip: {
+                        pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+                    },
+                    plotOptions: {
+                        pie: {
+                            allowPointSelect: true,
+                            cursor: 'pointer',
+                            dataLabels: {
+
+{#                           是否显示name     #}
+                                enabled: true,
+{#                    显示的格式以及显示的            #}
+                                formatter: function() {
+                                        //Highcharts.numberFormat(this.percentage,2)格式化数字，保留2位精度
+{#                                        return '<b>'+ this.point.name +'</b>: '+Highcharts.numberFormat(this.percentage,2) +' %';#}
+                                        //显示个数根据y值0
+                                        return '<b>'+ this.point.name +'</b>: '+Highcharts.numberFormat(this.y, 0, ',') +' 台';
+                                    }
+                            },
+                            showInLegend: true
+                        }
+                    },
+                    series: [{
+                        name: '服务器分布情况',
+                        colorByPoint: true
+                    }]
+                });
+
+{#  执行多条命令饼状图的计算机组数据    #}
+        $.ajax({
+        url: '/api/multitask/hostcounts/',
+        dataType: 'json',
+        {#     接收api中返回的数据           #}
+        success: function (arg) {
+        {#        赋值到图形界面       #}
+                charts.series[0].setData(arg);
+        {#                    console.log(arg)#}
+        },
+        {#        有错误弹出错误        #}
+        error:function(e){
+                console.log(e);
+        }
+        })
+
+
+
+{# 左侧控制面板div随滚动条滚动 #}
+{#$(document).ready(function () {#}
+{#    var menuYloc = $("#leftmenu").offset().top; //此ID为随着屏幕滚动div的ID#}
+{#    $(window).scroll(function () {#}
+{#        var offsetTop = menuYloc + $(window).scrollTop() + "px";#}
+{#        $("#leftmenu").animate({top: offsetTop}, {duration: 600, queue: false}); //此ID为随着屏幕滚动div的ID#}
+{#    });#}
+{# });#}
+
+{# 控制台随滚动条滚动     #}
+{#var rollSet = $('#leftmenu');#}
+{#var offset = rollSet.offset();#}
+{#var fwidth = $("#foo").height();#}
+{#$(window).scroll(function() {#}
+{#    var scrollTop = $(window).scrollTop();#}
+{#    var scrollBtm = $(document).height() - $(window).scrollTop() - $("#leftmenu").height();#}
+{#    console.log('scrollTop',scrollTop);#}
+{#    console.log('scrollBtm',scrollBtm);#}
+{#    console.log('fwidth ',fwidth );#}
+{#    console.log('offset',offset.top)#}
+{##}
+{#    if (offset.top < scrollTop) {#}
+{#        if (scrollBtm > fwidth) {#}
+{#            rollSet.removeClass('absolute').addClass('fixed')#}
+{#            $("#leftmenu").animate({top: scrollTop}, {duration: 600, queue: false})#}
+{#        }#}
+{#    }#}
+{# }) #}
+
+</script>

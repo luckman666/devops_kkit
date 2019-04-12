@@ -1,0 +1,59 @@
+{% extends 'index.html' %}
+
+
+{% block page-title %}
+主机信息详情列表
+{% endblock %}
+
+
+
+{% block right-content %}
+
+{#{% csrf_token %}#}
+<div class="table-responsive row" >
+<div class="col-md-12">
+<table class="table table-bordered" >
+<thead >
+<tr id="TheadTr">
+<th>勾选</th>
+{% for name in FieldName %}
+<th>{{ name }}</th>
+{% endfor %}
+</tr>
+</thead>
+<tbody >
+
+{% for hostinfo in request.user.bind_hosts.select_related  %}
+
+    {% if hostinfo.host.hostinfo != None %}
+<tr id="TableRow" class="CheckAll" >
+<td><input type="checkbox" id="{{ hostinfo.host.hostinfo.id }}" ></td>
+<td>{{ hostinfo.host.hostinfo.minionname }}</td>
+{#<td>{{ hostinfo.host.hostinfo.biosversion }}</td>#}
+<td>{{ hostinfo.host.hostinfo.cpu_model }}</td>
+{#<td>{{ hostinfo.host.hostinfo.hostname }}</td>#}
+<td>{{ hostinfo.host.hostinfo.kernelrelease }}</td>
+<td>{{ hostinfo.host.hostinfo.mem_total }}</td>
+<td width="5%" >{{ hostinfo.host.hostinfo.machine_id }}</td>
+{#<td>{{ hostinfo.host.hostinfo.master }}</td>#}
+<td>{{ hostinfo.host.hostinfo.num_cpus }}</td>
+<td>{{ hostinfo.host.hostinfo.osfinger }}</td>
+<td>{{ hostinfo.host.hostinfo.osrelease }}</td>
+<td>{{ hostinfo.host.hostinfo.productname }}</td>
+</tr>
+    {% endif %}
+
+{% endfor %}
+
+</tbody>
+</table>
+</div>
+</div>
+
+
+
+{% endblock %}
+
+{% block extra-js %}
+{% include 'MaintainWeb/multi_task_js_component.html' %}
+{% endblock %}

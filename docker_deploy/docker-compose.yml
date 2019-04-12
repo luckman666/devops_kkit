@@ -1,0 +1,73 @@
+version: '2'
+services:
+  kkit_nginx:
+    image: registry.cn-hangzhou.aliyuncs.com/yangb/kkir_nginx:1.0
+    container_name: kkit_nginx
+    restart: always
+    links:
+      - kkit_app
+    ports:
+      - 83:80
+    restart: always
+   
+  kkit_mysql:
+    hostname: kkit_mysql
+    container_name: kkit_mysql
+    image: registry.cn-hangzhou.aliyuncs.com/yangb/kkit_mysql:1.1
+    ports:
+      - "3317:3306"
+    restart: always
+    volumes:
+      - '/var/run/docker.sock:/var/run/docker.sock'
+    #  - '/opt/kkit_mysql/data1:/var/lib/mysql'
+      - '/etc/localtime:/etc/localtime:ro'
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+
+  kkit_redis:
+    hostname: kkit_redis
+    container_name: kkit_redis
+    image: redis
+    restart: always
+    ports:
+      - 6370:6379
+    
+  kkit_mq:
+    hostname: kkit_mq
+    container_name: kkit_mq
+    image: registry.cn-hangzhou.aliyuncs.com/yangb/kkit_mq:1.0
+    restart: always
+    ports:
+      - 5673:5672
+      - 15673:15672
+    environment:
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=admin
+ 
+  kkit_app:
+    hostname: kkit_app
+    container_name: kkit_app
+    image: registry.cn-hangzhou.aliyuncs.com/yangb/kkit_app:1.0
+    restart: always
+    links:
+      - kkit_mysql
+      - kkit_redis
+      - kkit_mq
+    volumes:
+      - ./settings.py:/usr/src/app/kkit/kkit/settings.py
+
+  shellinabox:
+    hostname: kkit_web_shell
+    container_name: kkit_web_shell
+    image: registry.cn-hangzhou.aliyuncs.com/yangb/kkit_web_shell:1.0
+    restart: always
+    ports:
+      - "4200:4200"
+      - "8022:22"
+    links:
+      - kkit_mysql
+      - kkit_redis
+      - kkit_app
+    volumes:
+      - ./settings.py:/usr/src/app/kkit/kkit/settings.py
+    command: bash -c "service ssh start && /opt/shellinabox/shellinaboxd  -t" 

@@ -1,0 +1,23 @@
+{% extends 'index.html' %}
+
+
+{% block page-title %}
+查看日志
+{% endblock %}
+
+
+
+{% block right-content %}
+
+    {% csrf_token %}
+
+    {% include 'MaintainWeb/system_list_menu_log.html' %}
+
+
+{% include 'MaintainWeb/multi_task_modal_component.html' %}
+
+{% endblock %}
+
+{% block extra-js %}
+{% include 'MaintainWeb/multi_task_js_component.html' %}
+{% endblock %}

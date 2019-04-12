@@ -1,0 +1,57 @@
+{% extends 'kkitadmin/kkitadmin_base.html' %}
+{% block url_path %}
+    <li><a href="/kkitadmin/">Home</a></li>
+    <li><a href="/kkitadmin/{{ app_name }}/">{{ app_name }}</a></li>
+{% endblock %}
+{% block left-sidebar-menu %}
+{#    <ul class="sidebar-menu" data-widget="tree">#}
+
+          <ul class="sidebar-menu" data-widget="tree">
+          <li class="header">菜单栏</li>
+
+        {% for men in request.user.userprofile.role.select_related  %}
+
+            {% for menu in men.menus.select_related %}
+{#                <li>{{ menu }}</li>#}
+{#           url menu.url_name为反向解析，前面的usl使用name进行标示了，这里直接使用url+name的名称就行了#}
+        <li class="active">
+            <a href="{% if menu.url_type == 0 %}{{ menu.url_name }}{% else %}{% url menu.url_name %}{% endif %}">
+                <i class="fa fa-link"></i>
+                <span>
+                {{ menu.name }}
+
+                </span>
+            </a>
+        </li>
+            {% endfor %}
+            {% endfor %}
+      </ul>
+
+
+{% endblock %}
+
+{# 右侧内容   #}
+{% block right-content %}
+{% for app_name,app_tables  in site.enabled_admins.items %}
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>{{ app_name }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for model_name in app_tables %}
+                    <tr>
+                        <td><a  href="{% url 'table_obj_list' app_name model_name %}">{{ model_name }}</a></td>
+                        <td><a href="{% url 'table_obj_add' app_name model_name %}">ADD</a></td>
+                        <td>Change</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+
+        </table>
+
+    {% endfor %}
+
+
+{% endblock %}

@@ -1,0 +1,93 @@
+<div>
+                            <form  class="form-block host-list">
+                                <ul class="list-group" style="border:0px;padding:0px">
+                                    <li  class="list-group-item">
+                                        <span class="badge badge-primary"><i class="fa fa-chevron-down " id="group_toggle_-2" onclick="ToggleGroup(-2)"></i></span>
+                                        <span data_label="group" class="badge badge-primary">全选</span>
+                                        <b>未分类主机 <a style="font-size:20px" class="text-danger">[{{  request.user.bind_hosts.select_related.count }}] </a>台</b>
+                                    </li>
+								</ul>
+                          <table class="table table-bordered" >
+                          <thead >
+                          <tr id="TableRow TheadTr" style='display:none' >
+                              <th>勾选</th>
+                            {% for name in FieldName %}
+
+								<th>{{ name }}</th>
+
+                            {% endfor %}
+                          </tr>
+                          </thead>
+                          <tbody >
+                            {% for host in request.user.bind_hosts.select_related %}
+
+                                <tr id="TableRow" style='display:none' class="CheckAll" >
+                              <td><input type="checkbox" id="{{ host.id }}" ></td>
+                                  <td><a href="#">{{ host.host.ip_addr }}</a></td>
+                            <td name="hostname" edit-type="input" origin="{{ host.host.hostinfo.hostname }}">{{ host.host.hostinfo.hostname }}</td>
+                              <td>{{ host.host.idc.get_name_display }}</td>
+                              <td>{{ host.host.system_type }}</td>
+                              <td>{{ host.host.port }}</td>
+                              <td width="20%">{{ host.host.memo }}</td>
+                              <td>{{ host.host.created_at }}</td>
+                                </tr>
+
+                            {% endfor %}
+                        </tbody>
+                          </table>
+
+                            </form>
+                </div>
+                            <!--===================================================-->
+<hr style="margin:0px">
+                    <!--end未分类主机-->
+                    <!--分类主机-->
+<div>
+                    {% for g in request.user.host_groups.select_related  %}
+
+                            <!--Block level checkboxes-->
+                            <!--===================================================-->
+                            <form  class="form-block host-list">
+                                <ui class="list-group" style="border:0px;padding:0px" >
+                                    <li  class="list-group-item">
+                                        <span class="badge badge-primary"><i class="fa fa-chevron-down " id="group_toggle_{{ g.id }}" onclick="ToggleGroup({{ g.id }})"></i></span>
+                                        <span data_label="group" class="badge badge-primary">全选</span>
+                                        <b>{{ g.name }}<a style="font-size:20px" class="text-danger"> [{{  g.bind_hosts.select_related.count}}]</a>台</b>
+                                    </li>
+                                </ui>
+
+                          <table class="table table-bordered" >
+                          <thead>
+                          <tr id="TableRow TheadTr" style='display:none' >
+                              <th>勾选</th>
+                            {% for name in FieldName %}
+
+								<th>{{ name }}</th>
+                            {% endfor %}
+                          </tr>
+                          </thead>
+                          <tbody table_label='host' >
+                            {% for host in g.bind_hosts.select_related %}
+                                <tr id="TableRow" style='display:none' class="CheckAll">
+                              <td><input type="checkbox" id="{{ host.id }}" ></td>
+                              <td>{{ host.host.ip_addr }}</td>
+                            <td name="hostname" edit-type="input" origin="{{ host.host.hostinfo.hostname }}">{{ host.host.hostinfo.hostname }}</td>
+                              <td>{{ host.host.idc.get_name_display }}</td>
+                              <td>{{ host.host.system_type }}</td>
+                              <td>{{ host.host.port }}</td>
+                              <td width="25%">{{ host.host.memo }}</td>
+                              <td>{{ host.host.created_at }}</td>
+                                </tr>
+
+                            {% endfor %}
+                        </tbody>
+                          </table>
+
+                            </form>
+                            <!--===================================================-->
+
+
+                        <hr style="margin:0px">
+
+                    {% endfor %}
+                </div>

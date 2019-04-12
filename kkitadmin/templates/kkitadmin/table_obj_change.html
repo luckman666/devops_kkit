@@ -1,0 +1,16 @@
+{% extends 'kkitadmin/kkitadmin_index.html' %}
+{% load kkitadmin_tags %}
+
+{% block right-content %}
+<h2 class="page-header">{% get_model_name admin_class %}</h2>
+{#  直接显示form表单样式  #}
+<h4 class="page-header">修改{{ form_obj.instance }}</h4>
+
+<div>
+
+
+{% include 'kkitadmin/table_obj_change_component.html' %}
+
+</div>
+
+{% endblock %}

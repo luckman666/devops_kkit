@@ -1,0 +1,343 @@
+
+<!-- Modal多命令输入框 -<模态对话框-->
+<div class="modal fade" id="taskRunConfirmModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="ClearBug()"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">批量命令输入框</h4>
+      </div>
+      <div class="modal-body">
+
+        <div class="panel-body">
+                    <!-- Content here -->
+                    <textarea type="text" rows="8" style="font-size:15px" placeholder="输入要执行的命令..." id="cmd" class="form-control"></textarea>
+
+                    <div class="pad-ver">
+                            <!--Send button-->
+                        <h5>设置任务超时时间</h5>
+                          <select id="task_expire_time" class="form-control">
+                            <option value="5000">------不限时长------</option>
+                            <option value="10">10分钟</option>
+                            <option value="30">30分钟</option>
+                            <option value="45">45分钟</option>
+                            <option value="60">60分钟</option>
+                            <option value="90">90分钟</option>
+                            <option value="120">120分钟</option>
+                            <option value="180">180分钟</option>
+                          </select>
+                    </div>
+                    <br>
+{#                    {% include 'MaintainWeb/multi_task_result_display_component.html' %}#}
+                </div>
+
+      </div>
+      <div class="modal-footer">
+
+{#        <button onclick="TerminateTask()" id="mail-save-btn" type="button" class="btn btn-info btn-labeled">#}
+{#        <span class="btn-label"><i class="fa fa-stop"></i></span> 停止#}
+{#  执行脚本  #}
+        <button type="button" id="submit_task_confirm" onclick="submit_task(this,'/api/multitask/cmd/')" class="btn btn-primary">确定执行</button>
+{#                <div class="modal-footer">#}
+{#        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>#}
+{#      </div>#}
+
+
+      </div>
+    </div>
+  </div>
+</div>
+<!--end 模态对话框-->
+
+<!-- Modal多命令停止警示框>-->
+<div class="modal fade" id="TaskStopModal" tabindex="-2" role="dialog" aria-labelledby="exampleModalLabel">
+  <div class="modal-dialog" role="document">
+
+<div class="alert alert-danger alert-dismissible fade in" role="alert">
+      <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
+      <h4>后台任务已经停止，相关进程被kill</h4>
+    <div id="TaskStopContextDisplay"></div>
+{#    这个还是弹出框，脱离之前带个id="delNid"的属性弹出，然后由弹出事件赋值后弹出，这就可以抓到值了#}
+{#    <div> <input style="display: none;" type="text" id="delNid" /></div>#}
+      <p>
+        <button type="button" class="btn btn-danger " onclick="FlushWindos()">了解</button>
+{#        <button type="button" class="btn btn-default " id="delUndo">取消</button>#}
+      </p>
+    </div>
+    </div>
+</div>
+
+<!-- Modal多文件传输入框>-->
+<div class="modal fade" id="TaskSendFileConfirmModal" tabindex="-3" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document"  style="width: 680px;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="ClearBug()"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">批量文件传输</h4>
+      </div>
+        <div class="panel-body">
+                    <div class="pad-ver"  >
+                        <input id="file_upload" name="filename" type="file" multiple class="file-loading">
+                    </div>
+                    <div class="pad-ver">
+                        <form id="file_form">{% csrf_token %}
+                          <div class="form-group">
+                            <label for="exampleInputName2">远程文件路径</label>
+                            <input type="text" placeholder="必须输入绝对路径和文件名，例如/tmp/9.log" style="height:30px;width: 380px;" class="form-control" name="remote_file_path" id="remote_file_path" >
+                          </div>
+                        </form>
+
+                      <div class="radio col-xs-6" id="task_type" >
+                        <h5>选择执行方式</h5>
+                        <label>
+                          <input type="radio" name="optionsRadios" id="optionsRadios1" value="file_send" checked>
+                          分发文件到客户端
+                        </label>
+                      <label>
+                          <input type="radio" name="optionsRadios" id="optionsRadios2" value="file_get" >
+                          从客户端下载文件
+                        </label>
+                      </div>
+                            <!--Send button-->
+                        <div class="col-xs-6">
+                        <h5>设置任务超时时间</h5>
+                          <select id="task_expire_time" class="selectpicker">
+                            <option value="5000">------不限时长------</option>
+                            <option value="10">10分钟</option>
+                            <option value="30">30分钟</option>
+                            <option value="45">45分钟</option>
+                            <option value="60">60分钟</option>
+                            <option value="90">90分钟</option>
+                            <option value="120">120分钟</option>
+                            <option value="180">180分钟</option>
+                          </select>
+                        </div>
+                    </div>
+                </div>
+
+{#      </div>#}
+      <div class="modal-footer">
+{#  执行脚本  #}
+        <button type="button" id="SubmitTaskFilesConfirm" onclick="submit_task(this,'/api/multitask/cmd/')" class="btn btn-primary">
+            <i class="fa fa-bicycle"></i>确定执行
+        </button>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 临时令牌发放输入框-->
+<div class="modal fade" id="AccReditLoginModal" tabindex="-4" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document"  style="width: 680px;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="ClearBug()"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">临时登录授权操作</h4>
+        </div>
+
+        <div id="SelectUser" class="row panel-body">
+                    <div class="pad-ver col-md-5">
+                        <h5>选定的授权主机列表</h5>
+                        <div id="HostD"></div>
+                    </div>
+                    <div id='CheckUserParend' class="pad-ver col-md-7 ">
+                        <h5>授予人选列表</h5>
+                        {% for i in UserEmail %}
+                            <p id="UserInfo" class="User"><input type="checkbox" UserId="{{ i.id }}" >&nbsp;&nbsp;&nbsp;姓名： {{ i.name }}&nbsp;&nbsp;&nbsp;  邮箱： {{ i.email }}&nbsp;&nbsp;&nbsp;</p>
+                        {% endfor %}
+                        <div id="Candidate"></div>
+                    </div>
+        </div>
+
+        <div class="row">
+                <div class="col-md-6 new-md-offset-1 pad-ver searchbox">
+                        <div class="input-group custom-search-form ">
+                            <input type="text" id="SearchUser" class="form-control input-lg " placeholder="搜索用户名或邮件地址..">
+                            <span class="input-group-btn">
+                                <button class="text-muted" type="button"><i class="fa fa-search"></i></button>
+                            </span>
+                        </div>
+                </div>
+                <div style="height: 68px" class="pad-ver col-md-6 ">
+{#                            <h5>设置临时令牌过期时间</h5>#}
+                              <select id="TokenExpireTime" class="form-control">
+                                    <option value="10">----设置临时令牌过期时间-默认10分钟---</option>
+                                    <option value="30">30分钟</option>
+                                    <option value="60">一小时</option>
+                                    <option value="240">四小时</option>
+                                    <option value="480">八小时</option>
+                              </select>
+                </div>
+        </div>
+
+
+      <div class="modal-footer">
+{#  执行脚本  #}
+        <button type="button" id="SubmitTaskFilesConfirm" onclick="submit_task(this,'/api/hosts/accredit/')" class="btn btn-primary">
+            <i class="fa fa-bicycle"></i>确认授权
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<!-- 批量停止salt job模态框 -->
+<div class="modal fade" id="RunningJobModal" tabindex="-4" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document"  style="width: 680px;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="ClearBug()"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">仍在运行中的任务列表</h4>
+        </div>
+{#        <h5>最新任务列表</h5>#}
+        <div class="row panel-body">
+                    <div id="RunTask"  class="pad-ver ">
+                    </div>
+        </div>
+      <div class="modal-footer">
+{#  执行脚本  #}
+        <button type="button" id="SubmitTaskFilesConfirm" onclick="TerminateSaltJob(this)" class="btn btn-primary">
+            <i class="fa fa-bicycle"></i>确认停止
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<!-- 批量停止任务模态框 -->
+<div class="modal fade" id="UnknownTaskModal" tabindex="-4" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document"  style="width: 680px;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="ClearBug()"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">仍在运行中的任务列表</h4>
+        </div>
+{#        <h5>最新任务列表</h5>#}
+        <div class="row panel-body">
+                    <div id="RunTask"  class="pad-ver ">
+                    </div>
+        </div>
+      <div class="modal-footer">
+{#  执行脚本  #}
+        <button type="button" id="SubmitTaskFilesConfirm" onclick="TerminateTask(this)" class="btn btn-primary">
+            <i class="fa fa-bicycle"></i>确认停止
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- 查看任务结果模态框 -->
+<div class="modal fade" id="CheckResultModal" tabindex="-4" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document"  style="width: 680px;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="ClearBug()"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">最新任务列表</h4>
+        </div>
+{#        <h5>最新任务列表</h5>#}
+        <div class="row panel-body">
+                    <div id="ReturnId"  class="pad-ver ">
+
+                    </div>
+        </div>
+      <div class="modal-footer">
+{#  执行脚本  #}
+        <button type="button" id="SubmitTaskFilesConfirm" onclick="CheckResultTask(this)" class="btn btn-primary">
+            <i class="fa fa-bicycle"></i>确认查看
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- 文件下载确认模态框 -->
+<div class="modal fade" id="fileDownloadConfirm" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">文件下载确认</h4>
+      </div>
+      <div class="modal-body">
+        <span id="modal_content">文件已经准备就绪，请问是否开始接收？</span>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+        <button type="button" onclick="FadeFileDownloadConfirm()" class="btn btn-info" ><a href="{% url 'file_download_url' 0 %}" >确定下载</a></button>
+      </div>
+    </div>
+  </div>
+</div>
+<!--end 模态对话框-->
+
+<!--执行脚本-->
+
+<div class="modal fade" id="ExecuteScriptModal" tabindex="-3" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document"  style="width: 680px;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="ClearBug()"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">脚本执行</h4>
+      </div>
+        <div class="panel-body">
+                    <div class="pad-ver"  >
+                        <input id="salt_file_upload" name="filename" type="file" multiple class="file-loading">
+                    </div>
+{#                    <div class="pad-ver">#}
+{#                        <form id="file_form">{% csrf_token %}#}
+{#                          <div class="form-group">#}
+{#                            <label for="exampleInputName2">脚本参数</label>#}
+{#                            <input type="text" placeholder="如果没有就不填" style="height:30px;width: 380px;" class="form-control" name="remote_file_path" id="script_arg" >#}
+{#                          </div>#}
+{#                        </form>#}
+{#                    </div>#}
+                    <div class="pad-ver">
+                      <div class="radio col-xs-6" id="task_type" >
+                        <h5>脚本类型</h5>
+                        <label>
+                          <input type="radio" name="optionsRadios" id="optionsRadios1" value="cmd.script" checked>
+                          shell脚本
+                        </label>
+{#                      <label>#}
+{#                          <input type="radio" name="optionsRadios" id="optionsRadios2" value="script_python" >#}
+{#                          python脚本#}
+{#                        </label>#}
+                      </div>
+                            <!--Send button-->
+                        <div class="col-xs-6">
+                        <h5>设置任务超时时间</h5>
+                          <select id="script_expire_time" class="selectpicker">
+                            <option value="5000">------不限时长------</option>
+                            <option value="10">10分钟</option>
+                            <option value="30">30分钟</option>
+                            <option value="45">45分钟</option>
+                            <option value="60">60分钟</option>
+                            <option value="90">90分钟</option>
+                            <option value="120">120分钟</option>
+                            <option value="180">180分钟</option>
+                          </select>
+                        </div>
+                    </div>
+                </div>
+
+{#      </div>#}
+      <div class="modal-footer">
+{#  执行脚本  #}
+        <button type="button" id="SubmitTaskFilesConfirm" onclick="ExecuteScriptConfirm(this,'/salt/executescript/')" class="btn btn-primary">
+            <i class="fa fa-bicycle"></i>确定执行
+        </button>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!--执行脚本end-->

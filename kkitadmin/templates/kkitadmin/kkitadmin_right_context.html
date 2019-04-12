@@ -1,0 +1,229 @@
+{% extends 'kkitadmin/kkitadmin_index.html' %}
+
+{% load kkitadmin_tags %}
+
+{% block extra-css%}
+    <style>
+    .div-inline{ display:inline}
+    </style>
+{% endblock %}
+
+{% block url_path %}
+    <li><a href="/kkitadmin/">Home</a></li>
+    <li><a href="/kkitadmin/{{ app_name }}/">{{ app_name }}</a></li>
+    <li class="active">{% get_model_verbose_name admin_class %}</li>
+{% endblock %}
+
+
+
+{% block right-content %}
+
+    <!-- Main content -->
+    <section class="content">
+
+      <div class="row">
+        <div class="col-xs-12">
+          <div class="box">
+            <div class="box-header">
+              <h3 class="box-title">数据列表</h3>
+            </div>
+            <!-- /.box-header -->
+            <div class="box-body">
+              <table id="example2" class="table table-bordered table-hover">
+{#    form 表单不填写action默认就是当前页发送请求   发送_q=输入的值       #}
+<p>
+        <form>
+{#    搜索框    #}
+{#   返回值被新增加在admin_class.search_key 属性上了     #}
+            <input class='form-control select2 select2-hidden-accessible div-inline' style='width: 20%;' type="search" placeholder="{% for s in admin_class.search_fields %}{{ s }},{% endfor %}" name="_q" value="{{ admin_class.search_key }}">
+            &nbsp;
+            <input class="btn btn-primary" type="submit" value="搜索">
+
+{#          ？？？    #}
+            {% for k,v in admin_class.filter_condtions.items %}
+                <input type="hidden" name="{{ k }}" value="{{ v }}">
+            {% endfor %}
+
+        </form>
+
+{#    设置admin active          #}
+        <form onsubmit="return ActionCheck(this)" method="post">{% csrf_token %}
+            <div >
+                <div >
+                    <select  class='form-control select2 select2-hidden-accessible div-inline' style='width: 20%;' name="action" >
+{#           默认展示的                #}
+                            <option value="">---------</option>
+{#       遍历admin_class中的action数组             #}
+                         {% for action in admin_class.actions %}
+                            <option value="{{ action }}">{{ action }}</option>
+                        {% endfor %}
+                    </select>
+
+                <input class='btn btn-primary' type="submit" value="GO">
+                </div>
+            </div>
+        </form>
+
+
+
+{#     过滤         #}
+</p>
+        <div >
+        {% if  admin_class.list_display %}
+            <form>
+{#       全选框     #}
+
+                    {#     遍历过 滤选项，得到每一个过滤的值       #}
+                {% for filter_column in admin_class.list_filter %}
+                   {% build_filter_ele filter_column admin_class %}
+                {% endfor %}
+                        {#   ？？？  记录排序列的索引值，并且有正负 ，作为请求路径        #}
+                <input type="hidden" name="_o" value="{% get_current_sorted_column_index sorted_column %}">
+
+                <input  class="btn btn-primary" type="submit" value="过滤">
+            </form>
+        </div>
+
+<p>
+
+
+            <thead>
+                <tr>
+{#    需要显示的列 表头           #}
+{#          全选框      #}
+                    <th><input type="checkbox" onclick="SelectAllObjs(this)"></th>
+                    {% for column in admin_class.list_display %}
+{#       #}
+                   <th><a href="?_o={% get_sorted_column column sorted_column forloop.counter0 %}{% render_filtered_args admin_class %}">
+                                {{ column }}
+                     {% render_sorted_arrow column  sorted_column %}
+                     </a></th>
+                    {% endfor %}
+                </tr>
+            </thead>
+{#  生成表内容  #}
+            <tbody>
+                {% for obj in querysets %}
+                    <tr>
+                    <td><input row-select="true"  type="checkbox" value="{{ obj.id }}"></td>
+                    {%  build_table_row obj admin_class %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+
+
+
+                <tfoot>
+                <tr>
+                 <th><input type="checkbox" onclick="SelectAllObjs(this)"></th>
+                    {% for column in admin_class.list_display %}
+{#  get_sorted_column生成排序的列的id和相对应的id的值和正负数      #}
+                   <th><a href="?_o={% get_sorted_column column sorted_column forloop.counter0 %}{% render_filtered_args admin_class%}">
+                                {{ column }}
+                     {% render_sorted_arrow column  sorted_column %}
+                     </a></th>
+                    {% endfor %}
+                </tr>
+                </tfoot>
+
+
+
+{# 如果没有特殊设置的表改如何显示 #}
+
+                    {% else %}
+                        <th>{% get_model_name admin_class %}</th>
+                    {% endif %}
+
+
+
+              </table>
+            </div>
+            <!-- /.box-body -->
+          </div>
+          <!-- /.box -->
+
+
+          <!-- /.box -->
+        </div>
+        <!-- /.col -->
+      </div>
+    </p>
+    {#         分页           #}
+                <ul class="pagination">
+                    {{ page_str }}
+                </ul>
+      <!-- /.row -->
+    </section>
+
+{#<script>#}
+{#  $(function () {#}
+{#    $('#example1').DataTable()#}
+{#    $('#example2').DataTable({#}
+{#      'paging'      : true,#}
+{#      'lengthChange': false,#}
+{#      'searching'   : false,#}
+{#      'ordering'    : true,#}
+{#      'info'        : true,#}
+{#      'autoWidth'   : false#}
+{#    })#}
+{#  })#}
+{#</script>#}
+
+
+
+<script>
+
+function SelectAllObjs(ele) {
+{# 如果全选按钮被选中   #}
+    if ($(ele).prop('checked')){
+{#   子项都选中     #}
+        $('input[row-select]').prop('checked',true)
+
+    }else {
+{#    没有选中，子项都去掉选中    #}
+        $('input[row-select]').prop('checked',false)
+    }
+
+
+}
+
+
+function ActionCheck(ele){
+{#  获取action的值  #}
+    var selected_action = $("select[name='action']").val();
+{#   获得选中的id号   #}
+    var selected_objs = $("input[row-select]").filter(":checked");
+{#   如果没有选中action那么提示   #}
+    console.log($("select[name='action']").val())
+    if (!selected_action){
+        alert("no action selected!")
+        return false
+    }
+    if (selected_objs.length == 0 ){
+{#     如果没有勾选也不能提交   #}
+        alert("no object selected!")
+        return false
+    }else {
+        //生成一个标签,放到form里
+
+        var selected_ids = [];
+{#    遍历每个勾选框    #}
+        $.each(selected_objs,function () {
+            console.log($(this) );
+{#       将其放入到列表中     #}
+            selected_ids.push($(this).val())
+        })
+        console.log(selected_ids)
+{#   拼接新的input标签到form表单中，提交     #}
+        var input_ele = "<input type='hidden' name='selected_ids' value=" + JSON.stringify(selected_ids) + ">"
+
+        $(ele).append(input_ele);
+    }
+    //return false
+
+}
+</script>
+
+
+
+{% endblock %}

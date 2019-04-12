@@ -1,0 +1,22 @@
+{% extends 'index.html' %}
+
+
+{% block page-title %}
+服务器概览
+{% endblock %}
+
+
+
+{% block right-content %}
+
+{% csrf_token %}
+
+{% include 'MaintainWeb/host_list_menu_component.html' %}
+
+{% include 'MaintainWeb/multi_task_modal_component.html' %}
+
+{% endblock %}
+
+{% block extra-js %}
+{% include 'MaintainWeb/multi_task_js_component.html' %}
+{% endblock %}

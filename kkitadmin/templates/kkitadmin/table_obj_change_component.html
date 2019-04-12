@@ -1,0 +1,112 @@
+{% load kkitadmin_tags %}
+{#  用户设置了 form-horizontal来显示东西 #}
+<form class="form-horizontal"  method="post" onsubmit="VerificationBeforeFormSubmit()"> {% csrf_token %}
+ {{ form_obj.errors }}
+{#  找到没条form数据的字段   #}
+  {% for field in form_obj %}
+  <div class="form-group">
+                                            {# field.label字段名 #}
+    <label class="col-sm-2 control-label">{{ field.label }}</label>
+    <div class="col-sm-10">
+{#  循环出用户配置的admin_class.filter_horizontal的数据，多选点击的条木  #}
+      {% if field.name in admin_class.filter_horizontal %}
+          <div class="col-lg-5">
+                <input type="search" class="form-control" oninput="FuzzSearch(this)">
+                <select id="id_{{ field.name }}_from" multiple class="form-control">
+                    {% get_available_m2m_data field.name form_obj admin_class as available_m2m_data %}
+                    {% for obj in available_m2m_data %}
+{#          ondblclick  绑定双击事件            #}
+                        <option ondblclick="MoveSelectedOption(this,'id_{{ field.name }}_to')" value="{{ obj.id }}">{{ obj }}</option>
+                    {% endfor %}
+                </select>
+{#       移走全部   #}
+              <p><a onclick="MoveAllElements('id_{{ field.name }}_from','id_{{ field.name }}_to')">Choose All</a></p>
+
+          </div>
+          <div class="col-lg-5">
+                <select tag="selected_m2m" id="id_{{ field.name }}_to" multiple class="form-control" name="{{ field.name }}">
+                    {%  get_selected_m2m_data field.name form_obj admin_class as selected_m2m_data %}
+{#        循环排除掉的值       #}
+                    {% for obj in selected_m2m_data %}
+                        <option value="{{ obj.id }}" ondblclick="MoveSelectedOption(this,'id_{{ field.name }}_from')">{{ obj }}</option>
+                    {% endfor %}
+
+                </select>
+              <p><a onclick="MoveAllElements('id_{{ field.name }}_to','id_{{ field.name }}_from')">Remove All</a></p>
+
+          </div>
+      {% else %}
+        {{ field }}
+      {% endif %}
+        <span style="color: red">{{ field.errors.0 }} </span>
+    </div>
+  </div>
+  {% endfor %}
+{#  修改表单  #}
+  {% if not admin_class.form_add %}   <!--如果这是修改表单-->
+{#   取出只读字段   #}
+      {% for field in admin_class.readonly_fields %}
+      <div class="form-group">
+{#    字段名  #}
+        <label class="col-sm-2 control-label">{{ field }}</label>
+        <div class="col-sm-10">
+
+          <p>{% get_obj_field_val form_obj field %}</p>
+        </div>
+      </div>
+      {% endfor %}
+ {% endif %}
+  <div class="form-group">
+    <div class=" col-sm-2">
+      <a  class="btn btn-danger" href="{% url 'obj_delete' app_name model_name form_obj.instance.id  %}">Delete</a>
+    </div>
+    <div class="col-sm-offset-11 col-sm-2">
+      <button type="submit" class="btn btn-info">Save</button>
+    </div>
+  </div>
+</form>
+
+
+<script>
+{#  移动双击选项的js  #}
+    function  MoveSelectedOption(ele,target_id) {
+{#  绑定他父亲标签的id属性，监听双击事件  #}
+        var new_target_id = $(ele).parent().attr('id');
+{#   ondblclick双击事件绑定     #}
+        var option = "<option value='" + $(ele).val() +"'ondblclick=MoveSelectedOption(this,'"+ new_target_id +"') >" + $(ele).text() +"</option>";
+{#    有双击事件就执行另一框的id，然后添加任务   #}
+        $("#"+ target_id).append(option);
+{#    删除自己    #}
+        $(ele).remove();
+
+    }
+
+    function MoveAllElements(from_id,to_id) {
+
+        console.log( $("#"+from_id).children())
+         $("#"+from_id).children().each(function () {
+             MoveSelectedOption(this,to_id);
+         })
+    }
+
+    function FuzzSearch(ele){
+
+        console.log($(ele).val())
+        var search_text = $(ele).val().toUpperCase();
+        $(ele).next().children().each(function () {
+            if ( $(this).text().toUpperCase().search(search_text) != -1){
+                $(this).show();
+            }else {
+                $(this).hide();
+            }
+        })
+
+    }
+
+    function VerificationBeforeFormSubmit() {
+
+
+        $("select[tag] option").prop('selected',true);
+
+    }
+</script>

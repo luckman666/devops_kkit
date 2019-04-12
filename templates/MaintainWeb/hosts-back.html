@@ -1,0 +1,174 @@
+{% extends 'index.html' %}
+{% block page-title %}
+操作主机
+{% endblock %}
+
+{% block page-content %}
+    <div class="row" >
+        <div class="col-lg-3" >
+             <div class="panel" >
+                <div class="pannel-heading">
+                    <h3 class="panel-title">主机组</h3>
+                </div>
+                <div class="pannel-body">
+                    <div class="list-group bord-no">
+{#   ifequal的语言，表示selected_g_id '-1'两个变量相等话就显示{% ifequal selected_g_id '-1' %} {% endifequal %} 之前的内容  #}
+
+                        {% ifequal selected_g_id '-1' %}
+{#                   recent_logins|length 去重后主机id的集合，取其主机集合的长度显示的是最近登录的主机数量            #}
+{#          默认active选中的状态                  #}
+                            <a class="list-group-item active" href="/hosts/?selected_group=-1"><b>最近登录 [{{ recent_logins|length }}]</b></a>
+                        {% else %}
+                             <a class="list-group-item" href="/hosts/?selected_group=-1">最近登录 [{{ recent_logins|length }}]</a>
+                        {% endifequal %}
+                        {% ifequal selected_g_id '-2' %}
+                            <a class="list-group-item active" href="/hosts/?selected_group=-2"><b>未分组主机 [{{ undistributed_host_count }}]</b></a>
+                        {% else %}
+                             <a class="list-group-item" href="/hosts/?selected_group=-2">未分组主机 [{{ undistributed_host_count }}]</a>
+                        {% endifequal %}
+
+
+                        {% for g in request.user.host_groups.select_related %}
+
+                            {% ifequal g.id selected_g_id %}
+
+                                <a class="list-group-item active" href="{% url 'host_list'  %}?selected_group={{g.id}}"><b>{{g.name }} [{{ g.bind_hosts.select_related.count }}]</b></a>
+                            {% else %}
+                                <a class="list-group-item" href="{% url 'host_list'  %}?selected_group={{g.id}}"><b>{{g.name }} [{{  g.bind_hosts.select_related.count}}]</b></a>
+
+
+                            {% endifequal %}
+
+                        {% endfor %}
+
+
+                    </div>
+
+                </div>
+
+             </div>
+        </div>
+        <div class="col-lg-9" >
+             <div class="panel" >
+                <div class="pannel-heading">
+                    <h3 class="panel-title">主机列表</h3>
+                </div>
+                <div class="pannel-body">
+                   <div class="list-group" >
+                       % for g_id,data in host_group_dic.items %
+
+
+                            <div class="table-responsive">
+                                <table class="table table-condensed">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-center">#</th>
+                                            <th>主机名</th>
+                                            <th>IP Addr</th>
+                                            <th>系统</th>
+                                            <th>主机备注</th>
+                                            <th>绑定用户</th>
+                                            <th>临时Token</th>
+                                            <th>登录</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                            {% for g in request.user.host_groups.select_related  %}
+                                {% ifequal selected_g_id g.id %}
+                                    {% for host in g.bind_hosts.select_related %}
+                                        <tr>
+                                            <td class="text-center">{{ forloop.counter }}</td>
+                                            <td><a href="#" class="btn-link">{{ host.host.hostname }}</a></td>
+                                            <td><a href="#" class="">{{ host.host.ip_addr }}</a></td>
+                                            <td><a href="#" class="">{{ host.host.system_type }}</a></td>
+                                            <td><a href="#" class="">{{ host.host.memo }}</a></td>
+                                            <td><span class="">{{ host.host_user.username }}</span></td>
+                                            <td><span class=""></span></td>
+                                            <td>
+                                                <span  bind_host_id="{{ host.id }}" class="label label-info cursor gen_token">生成Token</span>
+                                                <a href="http://{{ webssh.host }}:{{ webssh.port }}?u={{ webssh.username }}&p={{ webssh.password }}" target="_blank"><span class="label label-success cursor host_login">Login</span></a>
+
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                {% endifequal %}
+                           {% endfor %}
+             <!-- 未分组主机-->
+                            {% ifequal selected_g_id '-2' %}
+                                    {% for host in UndistributedHost %}
+                                           <tr>
+                                                <td class="text-center">{{ forloop.counter }}</td>
+                                                <td><a href="#" class="btn-link">{{ host.hostname }}</a></td>
+                                                <td><a href="#" class="">{{ host.ip_addr }}</a></td>
+                                                <td><a href="#" class="">{{ host.system_type }}</a></td>
+                                                <td><a href="#" class="">{{ host.memo }}</a></td>
+                                                <td><span class="">{{ host.username }}</span></td>
+                                                <td><span class=""></span></td>
+                                                <td>
+                                                    <span  bind_host_id="{{ host.id }}" class="label label-info cursor gen_token">生成Token</span>
+                                                    <a href="http://{{ webssh.host }}:{{ webssh.port }}?u={{ webssh.username }}&p={{ webssh.password }}" target="_blank"><span class="label label-success cursor host_login">Login</span></a>
+
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                {% endifequal %}
+
+                            {% if selected_g_id == '-1' %} <!-- 最近登录主机-->
+                                    {% for host in  recent_logins %}
+                                        <tr>
+                                            <td class="text-center">{{ forloop.counter }}</td>
+                                            <td><a href="#" class="btn-link">{{ host.host.host.hostname }}</a></td>
+                                            <td><a href="#" class="">{{ host.host.host.ip_addr }}</a></td>
+                                            <td><a href="#" class="">{{ host.host.host.system_type }}</a></td>
+                                            <td><a href="#" class="">{{ host.host.host.memo }}</a></td>
+                                            <td><span class="">{{ host.host.host_user.username }}</span></td>
+                                            <td><span class=""></span></td>
+                                            <td>
+                                                <span  bind_host_id="{{ host.host.id }}" class="label label-info cursor gen_token">生成Token</span>
+                                                <a href="http://{{ webssh.host }}:{{ webssh.port }}?u={{ webssh.username }}&p={{ webssh.password }}" target="_blank"><span class="label label-success cursor host_login">Login</span></a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                            {% endif %}
+                                    </tbody>
+                                </table>
+
+                            </div> <!--end table div-->
+
+
+
+
+
+                   </div>
+                </div>
+             </div>
+        </div>
+    </div>
+
+
+{% endblock %}
+
+{% block bottom-js %}
+<script type="text/javascript" >
+    $(document).ready(function(){
+
+       $(".gen_token").click(function(){
+{#           拿到主机ip#}
+           var bind_host_id = $(this).attr("bind_host_id");
+{#      这个是防tonken位置的标记#}
+           var token_ele = $(this).parent().prev().children("span");
+           console.log(token_ele)
+{#                    反解析#}
+           $.post("{% url 'token_gen' %}", {'token_type':'host_token','bind_host_id':bind_host_id},function(callback){
+{#        获取token的值#}
+               var token_obj = JSON.parse(callback);
+               //console.log('--token' + token_obj.token);
+{#    加到页面中#}
+               token_ele.html(token_obj.token);
+           });//end post
+
+       }) ;
+    });
+
+</script>
+{% endblock %}

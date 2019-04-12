@@ -1,0 +1,46 @@
+.ellipse {
+    background-color: #4CAF50; /* Green */
+    border-radius: 12px;
+    border: none;
+    color: white;
+    padding: 8px 70px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 12px;
+    margin: 4px 2px;
+    cursor: pointer;
+    -webkit-transition-duration: 0.4s; /* Safari */
+    transition-duration: 0.4s;
+}
+
+
+.newbutton1 {
+    box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+}
+/*.newbutton-small {*/
+    /*padding: 8px 70px;*/
+    /*text-align: center;*/
+    /*display: inline-block;*/
+/*}*/
+
+
+.ellipse-red {background-color: #f44d45;}
+
+.ellipse-blue {background-color: #066ecc;}
+
+.ellipse-green-mint {background-color: #26cc3e;}
+
+.ellipse-yello-mint {background-color: #cccb58;}
+
+/*.ellipse-new-mint {background-color: #066ecc;}*/
+
+.ellipse-small-green {background-color: #23cc61;padding: 4px 10px;}
+
+.ellipse-small-gray {background-color: #c8c9cc;padding: 4px 10px;}
+
+.ellipse-small-yellow {background-color: #a0cc15;padding: 4px 10px;}
+
+.ellipse-small-red {background-color: #f44d45;padding: 4px 10px;}
+/*   一行显示 */
+.div-inline{ display:inline}

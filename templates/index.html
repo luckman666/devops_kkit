@@ -1,0 +1,537 @@
+{% extends 'base.html' %}
+
+
+{% block left-sidebar-menu %}
+
+
+<li ><a href="{% url 'adm' %}"><i class="fa fa-dashboard"></i> <span >
+管理员控制台
+</span></a></li>
+
+{#<li class="active treeview menu-open"><a href="{% url 'sales_dashboard' %}"><i class="fa fa-dashboard"></i> <span >#}
+{#首页#}
+{#</span></a></li>#}
+
+<li ><a href="/hosts/?selected_group=-1"><i class="fa fa-th"></i> <span>
+登录授权
+</span></a></li>
+<li ><a href="{% url 'SyetemLog' %}"><i class="fa fa-th"></i> <span>
+系统日志
+</span></a></li>
+
+
+<li class="treeview">
+          <a href="/hosts/?selected_group=-1">
+            <i class="fa fa-pie-chart"></i>
+            <span>SSH批量</span>
+            <span class="pull-right-container">
+              <i class="fa fa-angle-left pull-right"></i>
+            </span>
+          </a>
+          <ul class="treeview-menu" style="display: none;">
+            <li><a href="/hosts/multi"><i class="fa fa-circle-o"></i> 批量命令</a></li>
+            <li><a href="/hosts/multi/filetrans"><i class="fa fa-circle-o"></i> 文件分发</a></li>
+{#            <li><a href="/kingadmin/web/tasklog"><i class="fa fa-circle-o"></i> 执行脚本</a></li>#}
+{#              <li><a href="/hosts/crontab/">计划任务</a></li>#}
+          </ul>
+        </li>
+
+
+<li class="treeview">
+          <a href="/hosts/?selected_group=-1">
+            <i class="fa fa-pie-chart"></i>
+            <span>saltstack批量</span>
+            <span class="pull-right-container">
+              <i class="fa fa-angle-left pull-right"></i>
+            </span>
+          </a>
+          <ul class="treeview-menu" style="display: none;">
+            <li><a href="/salt/config/"><i class="fa fa-circle-o"></i>选项配置</a></li>
+            <li><a href="/salt/checkhostinfo"><i class="fa fa-circle-o"></i> 查看主机详情</a></li>
+            <li><a href="/salt/saltscript/"><i class="fa fa-circle-o"></i> 执行脚本</a></li>
+{#            <li><a href="/hosts/crontab/">计划任务</a></li>#}
+          </ul>
+        </li>
+{#  故障处理  #}
+<li ><a href="{% url 'TroubleList' %}"><i class="fa fa-th"></i> <span>
+故障处理
+</span></a></li>
+<li ><a href="#"><i class="fa fa-th"></i> <span>
+容器管理
+</span></a></li>
+<li class="treeview">
+          <a href="/hosts/?selected_group=-1">
+            <i class="fa fa-edit"></i>
+            <span>操作记录</span>
+            <span class="pull-right-container">
+              <i class="fa fa-angle-left pull-right"></i>
+            </span>
+          </a>
+          <ul class="treeview-menu" style="display: none;">
+            <li><a href="/host/detail/"><i class="fa fa-circle-o"></i> 按主机</a></li>
+              <li><a href="/audit/"><i class="fa fa-circle-o"></i> 审计日志</a></li>
+          </ul>
+        </li>
+<li ><a href="{% url 'schedule_index' %}"><i class="fa fa-th"></i> <span>
+定时任务
+</span></a></li>
+
+<li ><a href="/kkitadmin/"><i class="fa fa-laptop"></i> <span>
+配置
+</span></a></li>								<!--Menu list item-->
+
+
+{% endblock %}
+
+
+
+
+
+
+		<!--===================================================-->
+		<!--END NAVBAR-->
+
+		<div class="boxed">
+
+			<!--CONTENT CONTAINER-->
+			<!--===================================================-->
+
+			<div id="content-container">
+
+				<!--Page Title-->
+				<!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+				<div id="page-title">
+					<h1 class="page-header text-overflow">{% block page-title %}  数据概览  {% endblock %}</h1>
+				</div>
+            <section class="content container-fluid">
+                {% block right-content %}
+
+                {% block breadcrumb %} {% endblock %}
+
+{#				<div id="page-content">#}
+                {% block page-content %}
+
+{#        首页上面四个框            #}
+                    <div class="row">
+        <div class="col-lg-3 col-xs-6">
+          <!-- small box -->
+          <div class="small-box bg-aqua">
+            <div class="inner">
+              <h3>15</h3>
+
+              <p>新的故障单</p>
+            </div>
+            <div class="icon">
+              <i class="ion ion-bag"></i>
+            </div>
+            <a href="#" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+          </div>
+        </div>
+        <!-- ./col -->
+        <div class="col-lg-3 col-xs-6">
+          <!-- small box -->
+          <div class="small-box bg-green">
+            <div class="inner">
+              <h3>48<sup style="font-size: 20px">%</sup></h3>
+
+              <p>故障单统计表</p>
+            </div>
+            <div class="icon">
+              <i class="ion ion-stats-bars"></i>
+            </div>
+            <a href="#" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+          </div>
+        </div>
+        <!-- ./col -->
+        <div class="col-lg-3 col-xs-6">
+          <!-- small box -->
+          <div class="small-box bg-yellow">
+            <div class="inner">
+              <h3>13</h3>
+
+              <p>登录人员统计表</p>
+            </div>
+            <div class="icon">
+              <i class="ion ion-person-add"></i>
+            </div>
+            <a href="#" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+          </div>
+        </div>
+        <!-- ./col -->
+        <div class="col-lg-3 col-xs-6">
+          <!-- small box -->
+          <div class="small-box bg-red">
+            <div class="inner">
+              <h3>23</h3>
+
+              <p>错误类型统计表</p>
+            </div>
+            <div class="icon">
+              <i class="ion ion-pie-graph"></i>
+            </div>
+            <a href="#" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+          </div>
+        </div>
+        <!-- ./col -->
+      </div>
+
+                     <!--end四个框结束-->
+
+
+{#   中间的图表   #}
+                    <div class="col-md-12">
+          <div class="box">
+            <div class="box-header with-border">
+              <h3 class="box-title">错误日志分析走势图</h3>
+
+              <div class="box-tools pull-right">
+                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+                </button>
+                <div class="btn-group">
+                  <button type="button" class="btn btn-box-tool dropdown-toggle" data-toggle="dropdown">
+                    <i class="fa fa-wrench"></i></button>
+                  <ul class="dropdown-menu" role="menu">
+                    <li><a href="#">Action</a></li>
+                    <li><a href="#">Another action</a></li>
+                    <li><a href="#">Something else here</a></li>
+                    <li class="divider"></li>
+                    <li><a href="#">Separated link</a></li>
+                  </ul>
+                </div>
+                <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+              </div>
+            </div>
+            <!-- /.box-header -->
+            <div class="box-body">
+              <div class="row">
+                <div class="col-md-8">
+                  <p class="text-center">
+                    <strong>Tasks: 1 Jan, 2019 - 30 Jan, 2019</strong>
+                  </p>
+
+                  <div class="chart">
+                    <!-- Sales Chart Canvas -->
+                    <canvas id="salesChart" style="height: 163px; width: 640px;" width="640" height="163"></canvas>
+                  </div>
+                  <!-- /.chart-responsive -->
+                </div>
+                <!-- /.col -->
+                <div class="col-md-4">
+                  <p class="text-center">
+                    <strong>服务器错误统计</strong>
+                  </p>
+
+                  <div class="progress-group">
+                    <span class="progress-text">测试1</span>
+                    <span class="progress-number"><b>160</b>/200</span>
+
+                    <div class="progress sm">
+                      <div class="progress-bar progress-bar-aqua" style="width: 80%"></div>
+                    </div>
+                  </div>
+                  <!-- /.progress-group -->
+                  <div class="progress-group">
+                    <span class="progress-text">测试2</span>
+                    <span class="progress-number"><b>310</b>/400</span>
+
+                    <div class="progress sm">
+                      <div class="progress-bar progress-bar-red" style="width: 80%"></div>
+                    </div>
+                  </div>
+                  <!-- /.progress-group -->
+                  <div class="progress-group">
+                    <span class="progress-text">测试3</span>
+                    <span class="progress-number"><b>480</b>/800</span>
+
+                    <div class="progress sm">
+                      <div class="progress-bar progress-bar-green" style="width: 80%"></div>
+                    </div>
+                  </div>
+                  <!-- /.progress-group -->
+                  <div class="progress-group">
+                    <span class="progress-text">测试4</span>
+                    <span class="progress-number"><b>220</b>/500</span>
+
+                    <div class="progress sm">
+                      <div class="progress-bar progress-bar-yellow" style="width: 80%"></div>
+                    </div>
+                  </div>
+                  <!-- /.progress-group -->
+                </div>
+                <!-- /.col -->
+              </div>
+              <!-- /.row -->
+            </div>
+            <!-- ./box-body -->
+            <div class="box-footer">
+              <div class="row">
+                <div class="col-sm-3 col-xs-6">
+                  <div class="description-block border-right">
+                    <span class="description-percentage text-green"><i class="fa fa-caret-up"></i> 17%</span>
+                    <h5 class="description-header">210</h5>
+                    <span class="description-text">系统日志错误数</span>
+                  </div>
+                  <!-- /.description-block -->
+                </div>
+                <!-- /.col -->
+                <div class="col-sm-3 col-xs-6">
+                  <div class="description-block border-right">
+                    <span class="description-percentage text-yellow"><i class="fa fa-caret-left"></i> 0%</span>
+                    <h5 class="description-header">390</h5>
+                    <span class="description-text">服务日志错误数</span>
+                  </div>
+                  <!-- /.description-block -->
+                </div>
+                <!-- /.col -->
+                <div class="col-sm-3 col-xs-6">
+                  <div class="description-block border-right">
+                    <span class="description-percentage text-green"><i class="fa fa-caret-up"></i> 20%</span>
+                    <h5 class="description-header">4540</h5>
+                    <span class="description-text">容器日志错误数</span>
+                  </div>
+                  <!-- /.description-block -->
+                </div>
+                <!-- /.col -->
+                <div class="col-sm-3 col-xs-6">
+                  <div class="description-block">
+                    <span class="description-percentage text-red"><i class="fa fa-caret-down"></i> 18%</span>
+                    <h5 class="description-header">1540</h5>
+                    <span class="description-text">其他日志错误数</span>
+                  </div>
+                  <!-- /.description-block -->
+                </div>
+              </div>
+              <!-- /.row -->
+            </div>
+            <!-- /.box-footer -->
+          </div>
+          <!-- /.box -->
+        </div>
+
+
+{#   中间图表结束  #}
+
+
+
+
+                    <div class="row">
+                         <div class="col-lg-12">
+
+                            <div class="panel">
+                                <div class="panel-heading">
+									<h3 class="panel-title">最近10条批量任务纪录</h3>
+								</div>
+                                <div class="table-responsive">
+								<table class="table table-striped">
+                                {% load custom_tag %}
+									<thead>
+										<tr>
+											<th class="text-center">任务ID</th>
+											<th class="text-center">日期</th>
+											<th>操作用户</th>
+											<th>操作主机数</th>
+											<th>操作类型</th>
+											<th>操作内容</th>
+											<th>成功数</th>
+											<th>失败数</th>
+											<th>未知数</th>
+										</tr>
+									</thead>
+									<tbody>
+
+									{% for task in recent_tasks %}
+                                    <tr>
+                                        <td><a class="btn-link" href="/configure/web_tasklogdetail/?child_of_task={{ task.id }}" target="_blank">#{{ task.id }}</a></td>
+                                        <td>{{ task.start_time }}</td>
+                                        <td>{{ task.user }}</td>
+                                         <td>{{ task.hosts.select_related.count }}</td>
+                                        <td>{{ task.get_task_type_display }}</td>
+
+                                        <td>{{ task.cmd }}</td>
+                                        <td>{% query_set task.tasklogdetail_set "result" "success" %}</td>
+                                        <td>{% query_set task.tasklogdetail_set "result" "failed" %}</td>
+                                        <td>{% query_set task.tasklogdetail_set "result" "unknown" %}</td>
+                                    </tr>
+                                    {% endfor %}
+									</tbody>
+								</table>
+							</div>
+
+                            </div>
+                        </div>
+                        <!--div class="col-lg-6">
+
+                            <div class="panel">
+                                <div class="panel-heading">
+
+									<h3 class="panel-title">近期危险操作统计</h3>
+								</div>
+
+                            </div>
+                        </div-->
+                    </div>
+
+                {% endblock %}
+				</div>
+				<!--===================================================-->
+				<!--End page content-->
+			</div>
+
+			<nav id="mainnav-container" style="height: 111%">
+				<div id="mainnav">
+
+					<div id="mainnav-menu-wrap">
+						<div class="nano">
+							<div class="nano-content">
+								<ul id="mainnav-menu" class="list-group">
+									<!--Menu list item-->
+									{% if request.user.is_superuser %}
+									<li >
+										<a href="/">
+											<i class="fa fa-dashboard"></i>
+											<span class="menu-title">首页</span>
+										</a>
+									</li>
+									{% endif %}
+
+									<!--Menu list item-->
+									<li>
+										<a href="/hosts/?selected_group=-1">
+											<i class="fa fa-server"></i>
+											<span class="menu-title">
+												<strong>主机</strong>
+											</span>
+										</a>
+									</li>
+
+									<!--Menu list item-->
+									<li>
+										<a href="#">
+											<i class="fa fa-random"></i>
+											<span class="menu-title">
+												批量
+
+											</span>
+										</a>
+										<!--Submenu-->
+										<ul class="collapse">
+											<li><a href="/hosts/multi">批量命令</a></li>
+											<li><a href="/hosts/multi/filetrans">文件分发</a></li>
+											<li><a href="/kingadmin/web/tasklog/">任务日志</a></li>
+{#											<li><a href="/hosts/crontab/">计划任务</a></li>#}
+											<!--li class="list-divider"></li>
+											<li><a href="#">Separate link</a></li-->
+
+										</ul>
+									</li>
+
+									<!--Menu list item-->
+									{% if request.user.is_superuser %}
+									<li>
+										<a href="#">
+											<i class="fa fa-book"></i>
+											<span class="menu-title">
+												操作纪录
+											</span>
+										</a>
+										<ul class="collapse">
+{#											<li><a href="/audit/">审计日志</a></li>#}
+											<li><a href="/host/detail/">按主机</a></li>
+											<!--li class="list-divider"></li>
+											<li><a href="#">Separate link</a></li-->
+
+										</ul>
+									</li>
+									{% endif %}
+
+                                    <li>
+										<a href="{% url 'schedule_index' %}">
+											<i class="fa fa-server"></i>
+											<span class="menu-title">
+												<strong>定时任务</strong>
+											</span>
+										</a>
+									</li>
+
+									<li>
+										<a href="/kkitadmin/" >
+											<i class="fa fa-cog"></i>
+											<span class="menu-title">
+												配置
+											</span>
+										</a>
+
+									</li>
+
+									<!--Category name-->
+
+
+								</ul>
+
+
+
+							</div>
+						</div>
+					</div>
+					<!--================================-->
+					<!--End menu-->
+
+				</div>
+			</nav>
+
+
+        {% block aside-bar %}
+
+        {% include 'MaintainWeb/user_audit_modal.html' %}
+        {% include 'MaintainWeb/user_audit_js.html' %}
+
+        {% endblock   %}
+		</div>
+
+
+
+
+		<!--===================================================-->
+		<button id="scroll-top" class="btn"><i class="fa fa-chevron-up"></i></button>
+		<!--===================================================-->
+
+
+
+	</div>
+	<!--===================================================-->
+	<!-- END OF CONTAINER -->
+<!--Large Bootstrap Modal-->
+<!--===================================================-->
+<div id="large-modal" class="modal fade" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" >
+            <div class="modal-header" style="opacity:1">
+                <button class="close" data-dismiss="modal"><span>&times;</span></button>
+                <h4 class="modal-title" id="myLargeModalLabel">当天登录用户</h4>
+
+            </div>
+            <div class="modal-body" >
+                <div id="large-modal-content" style=""/>
+                </div>
+           </div>
+        </div>
+    </div>
+</div>
+
+<!--===================================================-->
+<!--End Large Bootstrap Modal-->
+
+	<!--JAVASCRIPT-->
+	<!--=================================================-->
+
+	<!--jQuery [ REQUIRED ]-->
+
+{% endblock %}
+        </section>
+
+
+
+
+
+
+
