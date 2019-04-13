@@ -2,6 +2,9 @@
 django2.1写的一个全栈项目自动化运维系统（2.0版本）
 Ssh二次开发，salstack二次开发，MQ,mysql,websocket,redis等等。
 已经用docker封装完毕，如需安装试用请试用docker_deploy中的docker_compose
+在settings.py设置相关配置
+
+如需试用saltstack功能，需要自行安装并配置相关api
 
 核心功能：
 
