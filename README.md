@@ -15,7 +15,10 @@ Ssh二次开发，salstack二次开发，MQ,mysql,websocket,redis等等。
 有些内容没写全，因为要改写整个架构。
 初始账号123@123.com 密码123
 正在全新改写第三版，敬请期待！
-
+也在抓紧录制这个项目的教学视频！
+欢迎大家关注我个人的订阅号，会定期分享学习心得，相关案例信息！
+![index4](https://github.com/luckman666/devops_kkit/blob/master/gzh.jpg)
 ![index](https://github.com/luckman666/devops_kkit/blob/master/image/index.png) 
 ![index2](https://github.com/luckman666/devops_kkit/blob/master/image/3.png) 
 ![index3](https://github.com/luckman666/devops_kkit/blob/master/image/2.png) 
+
