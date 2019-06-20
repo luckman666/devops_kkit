@@ -6,7 +6,7 @@
 
 MQ,mysql,websocket,redis,web控制台采用shellinabox。
 
-为了部署方便我已经把所有组件做成了docker镜像，有时候可能会因为mq启动顺序问题导致不成功。项目具体部署过程如下：
+# 为了部署方便我已经把所有组件做成了docker镜像，有时候可能会因为mq启动顺序问题导致不成功。项目具体部署过程如下：
 
 git clone https://github.com/luckman666/devops_kkit.git
 
@@ -18,7 +18,7 @@ docker-compose up -d
 
 docker-compose restart kkit_app
 
-如需试用saltstack功能，需要自行安装并配置相关api，然后修改本目录的settings.py配置即可。
+# 如需试用saltstack功能，需要自行安装并配置相关api，然后修改本目录的settings.py配置即可。
 
 该版核心功能如下：
 
