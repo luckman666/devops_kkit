@@ -14,7 +14,7 @@ cd docker_deploy
 
 docker-compose up -d
 
-# 等待全部启动完毕如果访问出现502错误，那么执行下面语句
+#等待全部启动完毕如果访问出现502错误，那么执行下面语句
 
 docker-compose restart kkit_app
 
